@@ -1,6 +1,8 @@
 package utils
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Response struct {
 	Code    int         `json:"code"`
@@ -16,7 +18,7 @@ func SuccessMess(message string, data interface{}) Response {
 	}
 }
 
-func ErrorMessMess(message string, data interface{}) Response {
+func ErrorMess(message string, data interface{}) Response {
 	return Response{
 		http.StatusInternalServerError,
 		message,

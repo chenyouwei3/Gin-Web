@@ -1,7 +1,7 @@
 package global
 
-import "github.com/gomodule/redigo/redis"
+import "github.com/go-redis/redis"
 
 var (
-	RedisPool *redis.Pool
+	RedisClient *redis.Client
 )
