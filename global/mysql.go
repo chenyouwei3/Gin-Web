@@ -8,4 +8,5 @@ var (
 	ApiTable    *gorm.DB
 	RoleTable   *gorm.DB
 	CouponTable *gorm.DB
+	LogTable    *gorm.DB
 )

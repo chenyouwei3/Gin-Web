@@ -1,8 +1,8 @@
 package router
 
 import (
-	"LoopyTicker/controller"
 	"github.com/gin-gonic/gin"
+	"loopy-manager/controller"
 )
 
 func RoleRouter(engine *gin.Engine) {

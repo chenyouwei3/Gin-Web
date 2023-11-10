@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"LoopyTicker/model"
-	"LoopyTicker/utils"
 	"errors"
 	"github.com/golang-jwt/jwt"
+	"loopy-manager/global/model"
+	"loopy-manager/utils"
 	"time"
 )
 

@@ -1,20 +1,16 @@
 package service
 
 import (
-	"LoopyTicker/global"
-	"LoopyTicker/model"
-	"LoopyTicker/utils"
 	"gorm.io/gorm"
+	"loopy-manager/global"
+	"loopy-manager/global/model"
+	"loopy-manager/utils"
 	"strconv"
 	"time"
 )
 
 func CreateApi(api model.Api) utils.Response {
-	if api.Name == " " ||
-		api.Url == " " ||
-		len(api.Url) >= 20 ||
-		len(api.Name) >= 10 ||
-		(api.Method != "GET" && api.Method != "POST" && api.Method != "PUT" && api.Method != "DELETE") {
+	if api.Name == " " || api.Url == " " || len(api.Url) >= 20 || len(api.Name) >= 10 || (api.Method != "GET" && api.Method != "POST" && api.Method != "PUT" && api.Method != "DELETE") {
 		return utils.ErrorMess("参数错误", nil)
 	}
 	var apiDB []model.Api
@@ -27,7 +23,7 @@ func CreateApi(api model.Api) utils.Response {
 			return utils.ErrorMess("api已存在", nil)
 		}
 	}
-	api.CreateTime = time.Now().Format("2006-01-02 15:04:05")
+	api.CreateTime = utils.TimeFormat(time.Now())
 	api.Id = global.ApiSnowFlake.Generate().Int64()
 	res = global.ApiTable.Create(&api)
 	if res.Error != nil {
@@ -49,12 +45,7 @@ func DeletedApi(idString string) utils.Response {
 }
 
 func UpdateApi(api model.Api) utils.Response {
-	if api.Id == 0 ||
-		api.Name == "" ||
-		api.Url == "" ||
-		len(api.Url) >= 20 ||
-		len(api.Name) >= 10 ||
-		(api.Method != "GET" && api.Method != "POST" && api.Method != "PUT" && api.Method != "DELETE") {
+	if api.Id == 0 || api.Name == "" || api.Url == "" || len(api.Url) >= 20 || len(api.Name) >= 10 || (api.Method != "GET" && api.Method != "POST" && api.Method != "PUT" && api.Method != "DELETE") {
 		return utils.ErrorMess("失败,参数错误", nil)
 	}
 	var apiDB model.Api
@@ -64,7 +55,7 @@ func UpdateApi(api model.Api) utils.Response {
 	}
 	apiDB = api
 	apiDB.CreateTime = api.CreateTime
-	apiDB.UpdateTime = time.Now().Format("2006-01-02 15:04:05")
+	apiDB.UpdateTime = utils.TimeFormat(time.Now())
 	res = global.ApiTable.Session(&gorm.Session{}).Where("id = ?", api.Id).Save(&apiDB)
 	if res.Error != nil {
 		return utils.ErrorMess("失败", res.Error.Error())

@@ -1,18 +1,19 @@
 package initialize
 
 import (
-	"LoopyTicker/global"
 	"fmt"
 	"github.com/go-redis/redis"
+	"loopy-manager/global"
 )
 
-// 开启RedisPool
+// RedisInit 开启RedisPool
 func RedisInit() {
 	global.RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-		DB:       0,
-		PoolSize: 20,
+		Addr:         "43.138.32.203:6379", // Redis 服务器地址
+		Password:     "",                   // Redis 服务器密码
+		DB:           0,                    // Redis 数据库索引
+		PoolSize:     20,                   // 连接池大小
+		MinIdleConns: 5,                    // 最小空闲连接数
 	})
 	ping, err := global.RedisClient.Ping().Result()
 	if err != nil {

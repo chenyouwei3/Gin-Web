@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"LoopyTicker/model"
-	"LoopyTicker/service"
 	"github.com/gin-gonic/gin"
+	"loopy-manager/global/model"
+	"loopy-manager/service"
 	"net/http"
 )
 

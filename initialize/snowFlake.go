@@ -1,9 +1,9 @@
 package initialize
 
 import (
-	"LoopyTicker/global"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
+	"loopy-manager/global"
 )
 
 // 初始化雪花算法

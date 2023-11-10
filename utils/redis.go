@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"LoopyTicker/global"
+	"loopy-manager/global"
 	"time"
 )
 

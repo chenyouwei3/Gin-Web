@@ -1,6 +1,9 @@
 package utils
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 func GetPage(currPage, pageSize string) (int, int, error) {
 	curr, err := strconv.Atoi(currPage)
@@ -13,4 +16,8 @@ func GetPage(currPage, pageSize string) (int, int, error) {
 	}
 	skip := (curr - 1) * size
 	return skip, size, nil
+}
+
+func TimeFormat(t time.Time) string {
+	return t.Format("2006-01-02 15:04:05")
 }

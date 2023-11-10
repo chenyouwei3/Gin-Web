@@ -1,14 +1,15 @@
 package initialize
 
 import (
-	"LoopyTicker/global"
 	"fmt"
+	"loopy-manager/global"
 )
 
 func Init() {
 	RedisInit()
 	MysqlInit()
 	SnowFlakeInit()
+	RabbitMqSendInit()
 }
 
 func DataBaseClose() {

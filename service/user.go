@@ -1,13 +1,13 @@
 package service
 
 import (
-	"LoopyTicker/global"
-	"LoopyTicker/middleware"
-	"LoopyTicker/model"
-	"LoopyTicker/utils"
 	"encoding/json"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
+	"loopy-manager/global"
+	"loopy-manager/global/model"
+	"loopy-manager/middleware"
+	"loopy-manager/utils"
 	"math/rand"
 	"strconv"
 	"time"
@@ -49,7 +49,6 @@ func Login(user model.User) utils.Response {
 
 func Register(user model.User) utils.Response {
 	//查询
-	fmt.Println(user)
 	if user.Account == "" || user.Password == "" {
 		return utils.ErrorMess("账号密码不能为空", nil)
 	}

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"LoopyTicker/initialize"
-	"LoopyTicker/router"
+	"loopy-manager/initialize"
+	"loopy-manager/router"
 )
 
 func main() {
