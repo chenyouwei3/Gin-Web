@@ -11,6 +11,6 @@ func RabbitMqSendInit() {
 	//	fmt.Println("发送成功")
 	//	time.Sleep(1 * time.Second)
 	//}
-	rabbitPublish := utils.NewRabbitConn("publish", "logs", "")
-	rabbitPublish.PublishPublish("666")
+	rabbitPublish := utils.NewRabbitConn("", "logs_direct", "info")
+	rabbitPublish.PublishRouting("777")
 }
