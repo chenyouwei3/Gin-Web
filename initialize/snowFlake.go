@@ -29,5 +29,12 @@ func SnowFlakeInit() {
 		}
 		global.ApiSnowFlake = node
 	}
+	if global.LogSnowFlake == nil {
+		node, err := snowflake.NewNode(4)
+		if err != nil {
+			fmt.Println("snowflake init:", err)
+		}
+		global.LogSnowFlake = node
+	}
 
 }

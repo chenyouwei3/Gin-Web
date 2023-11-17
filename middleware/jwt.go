@@ -2,9 +2,12 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"loopy-manager/global/model"
 	"loopy-manager/utils"
+	"net/http"
 	"time"
 )
 
@@ -34,7 +37,7 @@ func CreateToken(user model.User) (string, error) {
 	return tokenString, err
 }
 
-func ResolvingToken(tokenString string) (*CustomClaims, error) {
+func ParseToken(tokenString string) (*CustomClaims, error) {
 	// 解析token
 	// 如果是自定义Claim结构体则需要使用 ParseWithClaims 方法
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (i interface{}, err error) {
@@ -53,4 +56,33 @@ func ResolvingToken(tokenString string) (*CustomClaims, error) {
 		return nil, errors.New("token无效")
 	}
 	return nil, errors.New("token无效")
+}
+
+func JWTAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//获取token
+		token := c.Request.Header.Get("token")
+		if token == "" {
+			c.JSON(http.StatusOK, utils.Response{Code: 401, Message: "token缺失", Data: ""})
+			//终止
+			c.Abort()
+			return
+		}
+		claims, err := ParseToken(token)
+		if err != nil {
+			c.JSON(http.StatusOK, utils.Response{Code: 401, Message: "token过期", Data: err.Error()})
+			//终止
+			c.Abort()
+			return
+		}
+		//将用户信息储存再上下文
+		c.Set("user", claims.User)
+		//重新存入redis
+		err = utils.Redis{}.SetValue(token, claims.User.Name, 60*60*24)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		//继续下面的操作
+		c.Next()
+	}
 }

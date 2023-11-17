@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -16,6 +17,7 @@ func MysqlInit() {
 	if err != nil {
 		log.Fatalf("Mysql数据库连接失败%s", err)
 	}
+	fmt.Println("mysql连接成功")
 	//设置连接池数量
 	//sqlDB, err := global.MysqlClient.DB()
 	//if err != nil {
@@ -28,5 +30,6 @@ func MysqlInit() {
 		global.UserTable = global.MysqlClient.Table("user")
 		global.RoleTable = global.MysqlClient.Table("role")
 		global.ApiTable = global.MysqlClient.Table("api")
+		global.LogTable = global.MysqlClient.Table("log")
 	}
 }

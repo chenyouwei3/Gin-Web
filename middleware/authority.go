@@ -16,14 +16,12 @@ func ApiAuth() gin.HandlerFunc {
 		method, url := c.Request.Method, c.Request.URL.Path
 		fmt.Println(url)
 		var api model.Api
-
 		res := global.ApiTable.Where("url = ? and method = ?", url, method).Find(&api)
 		if res.Error != nil {
-			fmt.Println(res.Error)
+			c.JSON(http.StatusOK, utils.ErrorMess("验证api：此api不存在", res.Error.Error()))
 			c.Abort()
 			return
 		}
-
 		//获取token解析出来的user
 		userInterface, _ := c.Get("user")
 		user := userInterface.(model.User)
@@ -56,7 +54,6 @@ func ApiAuth() gin.HandlerFunc {
 				}
 			}
 		}
-
 		c.JSON(http.StatusOK, utils.ErrorMess("验证api：此用户无访问此api的权限", nil))
 		c.Abort()
 		return

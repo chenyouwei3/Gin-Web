@@ -6,10 +6,12 @@ import (
 )
 
 func Init() {
+	go SocketServer()
 	RedisInit()
 	MysqlInit()
 	SnowFlakeInit()
 	RabbitMqSendInit()
+
 }
 
 func DataBaseClose() {

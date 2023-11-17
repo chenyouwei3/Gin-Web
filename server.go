@@ -6,10 +6,9 @@ import (
 )
 
 func main() {
-	engine := router.GetEngine()
 	initialize.Init()
 	defer initialize.DataBaseClose()
-
+	engine := router.GetEngine()
 	if err := engine.Run(":8091"); err != nil {
 		panic(err)
 	}
