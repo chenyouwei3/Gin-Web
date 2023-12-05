@@ -7,6 +7,5 @@ var (
 	UserTable   *gorm.DB
 	ApiTable    *gorm.DB
 	RoleTable   *gorm.DB
-	CouponTable *gorm.DB
 	LogTable    *gorm.DB
 )

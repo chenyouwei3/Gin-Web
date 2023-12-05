@@ -1,4 +1,4 @@
-package utils
+package e
 
 var (
 	Success         = NewError(0, "成功")

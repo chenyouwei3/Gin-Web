@@ -1,10 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"loopy-manager/global"
-	"loopy-manager/global/model"
+	"loopy-manager/model"
 	"loopy-manager/utils"
+	"reflect"
 	"strconv"
 	"time"
 )
@@ -37,7 +39,8 @@ func DeletedApi(idString string) utils.Response {
 	if err != nil {
 		return utils.ErrorMess("失败", err.Error())
 	}
-	res := global.ApiTable.Session(&gorm.Session{}).Delete(&model.Api{Id: id})
+	fmt.Println(id, "366", reflect.TypeOf(id))
+	res := global.ApiTable.Debug().Where("id= ?", id).Delete(&model.Api{})
 	if res.Error != nil {
 		return utils.ErrorMess("失败", res.Error.Error())
 	}

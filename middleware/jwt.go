@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"loopy-manager/global/model"
+	"loopy-manager/model"
 	"loopy-manager/utils"
 	"net/http"
 	"time"

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"loopy-manager/global/model"
+	"loopy-manager/model"
 	"loopy-manager/service"
 	"net/http"
 )

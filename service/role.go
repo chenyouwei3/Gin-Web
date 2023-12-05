@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"loopy-manager/global"
-	"loopy-manager/global/model"
+	"loopy-manager/model"
 	"loopy-manager/utils"
 	"strconv"
 	"time"
