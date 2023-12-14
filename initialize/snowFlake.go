@@ -36,5 +36,4 @@ func SnowFlakeInit() {
 		}
 		global.LogSnowFlake = node
 	}
-
 }

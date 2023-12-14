@@ -86,7 +86,6 @@ func Register(user model.User) utils.Response {
 	}
 	res = global.UserTable.Create(&user)
 	if res.Error != nil {
-
 		return utils.ErrorMess("创建失败", res.Error.Error())
 	}
 	return utils.SuccessMess("成功", res.RowsAffected)

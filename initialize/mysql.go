@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const dsn = "root:Cyw123456@tcp(43.138.32.203:3306)/loopyticker?charset=utf8mb4&parseTime=True&loc=Local"
+const dsn = ""
 
 // MysqlInit 初始化mysql
 func MysqlInit() {

@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-const RUrl = "amqp://root:Cyw123456@43.138.32.203:5673/"
+const RUrl = ""
 
 type Rabbit struct {
 	conn      *amqp.Connection
