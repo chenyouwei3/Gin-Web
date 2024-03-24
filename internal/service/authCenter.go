@@ -70,7 +70,6 @@ func UpdatedUser(user model.User) utils.Response {
 		if err := tx.Where("id = ?", user.Id).Take(&userDB).Error; err != nil {
 			return fmt.Errorf("查询失败%w", err)
 		}
-		fmt.Println("UPDATE", userDB)
 		userDB.Name = user.Name
 		userDB.RoleID = user.RoleID
 		if err := tx.Debug().Save(&userDB).Error; err != nil {
