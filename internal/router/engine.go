@@ -8,11 +8,15 @@ import (
 
 func GetEngine() *gin.Engine {
 	engine := gin.Default()
-	//限流/路由日志/跨域
-	engine.Use(middleware.Limiter(1, 1), middleware.OperationLogMiddleware(), middleware.CorsMiddleware()) //跨域
+	//路由日志*---*跨域
+	//engine.Use(middleware.OperationLogMiddleware(), middleware.CorsMiddleware())
+	//限流
+	engine.Use(middleware.LimiterBucket(1, 1))
 	engine.POST("/login", controller.Login)
 	//权限/jwt/cookie/session
-	engine.Use(middleware.AuthCookieMiddleware())
+	//engine.Use(middleware.AuthCookieMiddleware())
+	//缓存
+	engine.Use(middleware.CacheTest())
 	AuthCenterRouter(engine)
 	return engine
 }

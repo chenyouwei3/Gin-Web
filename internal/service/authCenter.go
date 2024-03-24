@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"loopy-manager/initialize/global"
 	"loopy-manager/internal/model"
+	"loopy-manager/pkg/auth"
 	"loopy-manager/pkg/utils"
 	"math/rand"
 	"net/http"
@@ -19,12 +20,12 @@ func CreateUser(user model.User) utils.Response {
 	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
 		//查询账号重复
 		var userDB model.User
-		if err := tx.Where("account = ?", user.Account).First(&userDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || userDB.Account == user.Account {
+		if err := tx.Debug().Select("account").Where("account = ?", user.Account).Find(&userDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || userDB.Account == user.Account {
 			return fmt.Errorf("账号已存在:%w", err)
 		}
 		// 查询角色是否存在
-		var roleDB []model.Role
-		if err := global.RoleTable.Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
+		var roleDB model.Role
+		if err := global.RoleTable.Debug().Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
 			return fmt.Errorf("查询角色错误:%w", err)
 		}
 		rand.New(rand.NewSource(time.Now().Unix())) //根据时间戳生成种子
@@ -35,14 +36,9 @@ func CreateUser(user model.User) utils.Response {
 		}
 		user.Password, user.Salt = string(encryptedPass), salt
 		//插入事务
-		if err := global.RoleTable.Transaction(func(tx1 *gorm.DB) error {
-			user.Id = global.ApiSnowFlake.Generate().Int64()
-			if err := tx.Create(&user).Error; err != nil {
-				return fmt.Errorf("创建用户失败:%w", err)
-			}
-			return nil
-		}); err != nil {
-			return fmt.Errorf("创建用户事务失败:%w", err)
+		user.Id = global.UserSnowFlake.Generate().Int64()
+		if err := tx.Debug().Create(&user).Error; err != nil {
+			return fmt.Errorf("创建用户失败:%w", err)
 		}
 		return nil
 	}); err != nil {
@@ -58,7 +54,7 @@ func DeletedUser(idString string) utils.Response {
 	}
 	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
 		// 删除用户记录
-		if err := tx.Delete(&model.User{}, id).Error; err != nil {
+		if err := tx.Debug().Delete(&model.User{}, id).Error; err != nil {
 			return err
 		}
 		return nil
@@ -71,12 +67,13 @@ func DeletedUser(idString string) utils.Response {
 func UpdatedUser(user model.User) utils.Response {
 	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
 		var userDB model.User
-		if err := tx.Where("id = ?", user.Id).First(&userDB).Error; err != nil || errors.Is(err, gorm.ErrRecordNotFound) {
+		if err := tx.Where("id = ?", user.Id).Take(&userDB).Error; err != nil {
 			return fmt.Errorf("查询失败%w", err)
 		}
+		fmt.Println("UPDATE", userDB)
 		userDB.Name = user.Name
 		userDB.RoleID = user.RoleID
-		if err := tx.Save(&userDB).Error; err != nil {
+		if err := tx.Debug().Save(&userDB).Error; err != nil {
 			return fmt.Errorf("更新角色失败:%w", err)
 		}
 		return nil
@@ -97,8 +94,8 @@ func GetUser(name, currPage, pageSize, startTime, endTime string) utils.Response
 	}
 	var count int64
 	var userDB []model.User
-	//Order("id desc")id降序排列
-	res := tx.Preload("Role").Where("name like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&userDB).Count(&count)
+	//加载role的信息.Preload("Role")
+	res := tx.Where("name like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&userDB).Count(&count)
 	if res.Error != nil {
 		return utils.ErrorMess("失败", res.Error.Error())
 	}
@@ -115,27 +112,23 @@ func CreateRole(role model.Role) utils.Response {
 	if err := global.RoleTable.Transaction(func(tx *gorm.DB) error {
 		//查询角色重复
 		var roleDB model.Role
-		if err := tx.Where("name = ?", roleDB.Name).Error; (err != nil && errors.Is(err, gorm.ErrRecordNotFound)) || role.Name == roleDB.Name {
+		if err := tx.Debug().Select("name").Where("name = ?", roleDB.Name).Take(&roleDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || role.Name == roleDB.Name {
 			return fmt.Errorf("角色重复:%w", err)
 		}
 		// 查询api是否存在
 		var apiDB []model.Api
-		if err := global.ApiTable.Where("id IN ?", extractRoleID(role.Api)).Find(&apiDB).Error; err != nil {
+		if err := global.ApiTable.Select("id").Where("id IN ?", extractRoleID(role.Api)).Find(&apiDB).Error; err != nil {
 			return fmt.Errorf("查询api错误:%w", err)
 		}
 		if len(apiDB) != len(role.Api) { // 检查查询到的api数量是否和传入的api数量相等
 			return fmt.Errorf("api数量不相等")
 		}
 		//插入事务
-		if err := global.RoleTable.Transaction(func(tx0 *gorm.DB) error {
-			role.Id = global.RoleSnowFlake.Generate().Int64()
-			if err := tx0.Create(&role).Error; err != nil {
-				return fmt.Errorf("创建角色失败:%w", err)
-			}
-			return nil
-		}); err != nil {
-			return fmt.Errorf("创建角色事务失败:%w", err)
+		role.Id = global.RoleSnowFlake.Generate().Int64()
+		if err := tx.Debug().Create(&role).Error; err != nil {
+			return fmt.Errorf("创建角色失败:%w", err)
 		}
+		return nil
 		return nil
 	}); err != nil {
 		return utils.ErrorMess("事务失败", err.Error())
@@ -210,7 +203,7 @@ func GetRole(name, currPage, pageSize, startTime, endTime string) utils.Response
 	var count int64
 	var roleDB []model.Role
 	//Order("id desc")id降序排列
-	res := tx.Preload("Api").Where("name like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&roleDB).Count(&count)
+	res := tx.Debug().Where("name like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&roleDB).Count(&count)
 	if res.Error != nil {
 		return utils.ErrorMess("失败", res.Error.Error())
 	}
@@ -224,20 +217,15 @@ func GetRole(name, currPage, pageSize, startTime, endTime string) utils.Response
 }
 
 func CreateApi(api model.Api) utils.Response {
-	if err := global.ApiTable.Transaction(func(tx0 *gorm.DB) error {
+	if err := global.ApiTable.Transaction(func(tx *gorm.DB) error {
 		//查询角色重复
 		var apiDB model.Api
-		if err := tx0.Where("url = ?", api.Url).First(&apiDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || api.Url == apiDB.Url {
+		if err := tx.Select("url").Where("url = ?", api.Url).First(&apiDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || api.Url == apiDB.Url {
 			return fmt.Errorf("api重复:%w", err)
 		}
-		if err := global.ApiTable.Transaction(func(tx *gorm.DB) error {
-			api.Id = global.ApiSnowFlake.Generate().Int64()
-			if err := tx.Create(&api).Error; err != nil {
-				return fmt.Errorf("创建api失败:%w", err)
-			}
-			return nil
-		}); err != nil {
-			return fmt.Errorf("创建api事务失败:%w", err)
+		api.Id = global.ApiSnowFlake.Generate().Int64()
+		if err := tx.Create(&api).Error; err != nil {
+			return fmt.Errorf("创建api失败:%w", err)
 		}
 		return nil
 	}); err != nil {
@@ -297,8 +285,7 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 	}
 	var count int64
 	var apiDB []model.Api
-	//Order("id desc")id降序排列
-	res := tx.Order("id desc").Preload("Role").Where("id like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&apiDB).Count(&count)
+	res := tx.Debug().Where("name like ?", "%"+name+"%").Limit(limit).Offset(skip).Find(&apiDB).Count(&count)
 	if res.Error != nil {
 		return utils.ErrorMess("失败", res.Error.Error())
 	}
@@ -313,29 +300,24 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 
 func LoginCookie(user model.User, c *gin.Context) utils.Response {
 	var userDB model.User
-	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("account = ?", user.Account).First(&userDB).Error; err != nil {
-			return fmt.Errorf("账号已存在:%w", err)
-		}
-		//校验密码
-		if err := bcrypt.CompareHashAndPassword([]byte(userDB.Password), []byte(user.Password+userDB.Salt)); err != nil {
-			return fmt.Errorf("密码错误%w", err)
-		}
-		//查询角色信息
-		var roleDB []model.Role
-		if err := global.RoleTable.Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
-			return fmt.Errorf("查询角色错误:%w", err)
-		}
-		return nil
-	}); err != nil {
-		return utils.ErrorMess("事务失败", err.Error())
+	if err := global.UserTable.Select("account").Where("account = ?", user.Account).First(&userDB).Error; err != nil {
+		return utils.ErrorMess("账号已存在:", err)
+	}
+	//校验密码
+	if err := bcrypt.CompareHashAndPassword([]byte(userDB.Password), []byte(user.Password+userDB.Salt)); err != nil {
+		return utils.ErrorMess("密码错误:", err)
+	}
+	//查询角色信息
+	var roleDB []model.Role
+	if err := global.RoleTable.Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
+		return utils.ErrorMess("查询角色错误:", err)
 	}
 	//生成cookie
 	cookie := http.Cookie{
-		Name:   user.Account,                                 //名称
-		Value:  utils.CookieEncryption("cyw", user.Password), //值
-		Path:   "/",                                          //有效路径
-		Domain: c.ClientIP(),                                 //cookie的有效域名
+		Name:   user.Account,                                //名称
+		Value:  auth.CookieEncryption("cyw", user.Password), //值
+		Path:   "/",                                         //有效路径
+		Domain: c.ClientIP(),                                //cookie的有效域名
 		//Expires:  time.Now().Add(time.Hour).UTC(), //过期时间
 		MaxAge:   3600,
 		HttpOnly: true, //js是否能够读取

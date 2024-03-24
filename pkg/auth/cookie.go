@@ -1,4 +1,4 @@
-package utils
+package auth
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 
 var CookieKey = []byte("cyw")
 
+// 加密
 func CookieEncryption(name, value string) string {
 	// 实例化 securecookie
 	var secure = securecookie.New(CookieKey, nil)
@@ -19,6 +20,7 @@ func CookieEncryption(name, value string) string {
 	return encodeValue
 }
 
+// 解密
 func CookieDecrypt(name, encodeValue string) string {
 	// 实例化 securecookie
 	var secure = securecookie.New(CookieKey, nil)

@@ -1,4 +1,4 @@
-package utils
+package redis
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 type Redis struct {
 }
 
-func (redis Redis) SetValue(key, value string, t time.Duration) error {
+func (r Redis) SetValue(key, value string, t time.Duration) error {
 	err := global.RedisClient.Set(key, value, t).Err()
 	if err != nil {
 		return fmt.Errorf("redis(sds)设置失败:%w", err)
@@ -17,10 +17,18 @@ func (redis Redis) SetValue(key, value string, t time.Duration) error {
 	return nil
 }
 
-func (redis Redis) GetValue(key string) (string, error) {
+func (r Redis) GetValue(key string) (string, error) {
 	res, err := global.RedisClient.Get(key).Result()
 	if err != nil {
 		return "", fmt.Errorf("redis(sds)读取失败:%w", err)
 	}
 	return res, nil
+}
+
+func (r Redis) DeletedValue(key string) error {
+	err := global.RedisClient.Del(key).Err()
+	if err != nil {
+		return fmt.Errorf("redis(sds)删除失败:%w", err)
+	}
+	return nil
 }

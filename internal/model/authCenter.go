@@ -3,6 +3,7 @@ package model
 type User struct {
 	Id       int64  `json:"id" gorm:"column:id;type:bigint;primarykey;not null"`
 	Name     string `json:"name" gorm:"column:name;type:varchar(20);not null"`
+	Sex      string `json:"sex" gorm:"column:sex;type:varchar(5);not null"`
 	Account  string `json:"account" gorm:"column:account;type:varchar(20);not null"`
 	Password string `json:"password" gorm:"column:password;type:varchar(60);not null"`
 	Salt     string `json:"salt" gorm:"column:salt;type:varchar(20);not null"`
