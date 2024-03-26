@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"loopy-manager/pkg/redis"
+	"loopy-manager/initialize/global"
+	"loopy-manager/pkg/redisUtils"
 	"net/http"
 	"sync"
 	"time"
@@ -35,12 +36,12 @@ func CacheTest() gin.HandlerFunc {
 		c.Writer = cache
 		//命中缓存
 		if method == "GET" && c.Writer.Status() == 200 {
-			cacheData, err := redis.Redis{}.GetValue(path)
+			cacheData, err := redisUtils.Redis{}.GetValue(path)
 			if err != nil {
 				logrus.Error("获取redis缓存失败:", err)
 				c.Next()
 				if cache.body != nil {
-					errOver := redis.Redis{}.SetValue(path, cache.body.String(), 5*time.Minute)
+					errOver := redisUtils.Redis{}.SetValue(path, cache.body.String(), 5*time.Minute)
 					if errOver != nil {
 						logrus.Error("更新redis缓存失败:", err)
 					}
@@ -61,15 +62,59 @@ func CacheTest() gin.HandlerFunc {
 			}
 		}
 		//延迟双删
-		err := redis.Redis{}.DeletedValue(path)
+		err := redisUtils.Redis{}.DeletedValue(path)
 		if err != nil {
 			logrus.Error("删除redis缓存错误:", err)
 			return
 		}
 		c.Next()
-		err = redis.Redis{}.DeletedValue(path)
+		err = redisUtils.Redis{}.DeletedValue(path)
 		if err != nil {
 			logrus.Error("删除redis缓存错误:", err)
+			return
+		}
+	}
+}
+
+func CacheTest2() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//启动缓存删除消息队列
+		method := c.Request.Method
+		path := c.Request.URL.Path
+		cache := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = cache
+		//命中缓存
+		if method == "GET" && c.Writer.Status() == 200 {
+			cacheData, err := redisUtils.Redis{}.GetValue(path)
+			if err != nil {
+				logrus.Error("获取redis缓存失败:", err)
+				c.Next()
+				if cache.body != nil {
+					errOver := redisUtils.Redis{}.SetValue(path, cache.body.String(), 5*time.Minute)
+					if errOver != nil {
+						logrus.Error("更新redis缓存失败:", err)
+					}
+				}
+				return
+			}
+			if cacheData != "" { //命中
+				var jsonData interface{}
+				err := json.Unmarshal([]byte(cacheData), &jsonData)
+				if err != nil {
+					logrus.Error("缓存转化json失败:", err)
+					c.Next()
+					return
+				}
+				c.JSON(http.StatusOK, jsonData)
+				c.Abort()
+				return
+			}
+		}
+		c.Next()
+		err := redisUtils.Redis{}.DeletedValue(path)
+		if err != nil {
+			logrus.Error("删除redis缓存错误:", err)
+			global.RabbitCache.PublishSimple(path) //消息队列补偿删除
 			return
 		}
 	}

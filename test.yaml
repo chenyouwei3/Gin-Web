@@ -1,0 +1,28 @@
+mysql:
+  Address: root:Cyw123456@tcp(43.138.32.203:3306)/loopyticker?charset=utf8mb4&parseTime=True&loc=Local
+  SetMaxIdleConns: 10
+  SetMaxOpenConns: 10
+  SetConnMaxLifetime:	15m
+
+mongodb:
+  Address: mongodb://root:CywGmy032419@43.138.32.203:27017
+  DBName001:
+  DBName002:
+
+redis:
+  Address: 43.138.32.203:6379
+  Password:
+  DB: 0
+  PoolSize: 20
+  MinIdleConns: 5
+
+jwt:
+  SignKey: cyw
+  ExpireSeconds:
+  Issuer: cyw
+
+rabbitmq:
+  Url1: amqp://root:Cyw123456@43.138.32.203:5673/
+  Url2:
+  Url3:
+  Url4:

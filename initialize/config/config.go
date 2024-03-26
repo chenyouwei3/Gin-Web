@@ -12,10 +12,11 @@ import (
 var Config = Init("././test.yaml")
 
 type config struct {
-	Mysql   *MysqlConfig   `yaml:"mysql"`
-	Mongodb *MongodbConfig `yaml:"mongodb"`
-	Redis   *RedisConfig   `yaml:"redis"`
-	Jwt     *JwtConfig     `yaml:"jwt"`
+	Mysql    *MysqlConfig    `yaml:"mysql"`
+	Mongodb  *MongodbConfig  `yaml:"mongodb"`
+	Redis    *RedisConfig    `yaml:"redis"`
+	Jwt      *JwtConfig      `yaml:"jwt"`
+	Rabbitmq *RabbitmqConfig `yaml:"rabbitmq"`
 }
 
 type MysqlConfig struct {
@@ -43,6 +44,13 @@ type JwtConfig struct {
 	SignKey       string `yaml:"SignKey"`
 	ExpireSeconds int    `yaml:"ExpireSeconds"`
 	Issuer        string `yaml:"Issuer"`
+}
+
+type RabbitmqConfig struct {
+	Url1 string `yaml:"url1"`
+	Url2 string `yaml:"url2"`
+	Url3 string `yaml:"url3"`
+	Url4 string `yaml:"url4"`
 }
 
 func Init(filename string) *config {

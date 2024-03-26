@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"loopy-manager/pkg/auth/jwt"
-	"loopy-manager/pkg/redis"
+	"loopy-manager/pkg/redisUtils"
 	"loopy-manager/pkg/utils"
 	"net/http"
 )
@@ -29,7 +29,7 @@ func AuthTokenMiddleware() gin.HandlerFunc {
 		//将用户信息储存再上下文
 		c.Set("user", claims.User)
 		//重新存入redis
-		err = redis.Redis{}.SetValue(token, claims.User.Name, 60*60*48)
+		err = redisUtils.Redis{}.SetValue(token, claims.User.Name, 60*60*48)
 		if err != nil {
 			logrus.Error("更新token失败:", err)
 		}
