@@ -3,11 +3,11 @@ package rabbitmqUtils
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
-	"loopy-manager/initialize/config"
 )
 
-//交换机种类direct topic headers fanout
+const MQURL = "amqp://root:Cyw123456@43.138.32.203:5673/"
 
+// 交换机种类direct topic headers fanout
 type RabbitMQ struct {
 	Conn      *amqp.Connection
 	Channel   *amqp.Channel
@@ -17,9 +17,21 @@ type RabbitMQ struct {
 	Url       string //连接地址
 }
 
-// NewRabbitMQ 创建结构体实例
 func NewRabbitMQ(queueName string, exchange string, key string) *RabbitMQ {
-	return &RabbitMQ{QueueName: queueName, ExChange: exchange, Key: key, Url: config.Config.Rabbitmq.Url1}
+	return &RabbitMQ{QueueName: queueName, ExChange: exchange, Key: key, Url: MQURL}
+}
+
+func NewRabbitMqUrl(queueName string, exchange string, key string) *RabbitMQ {
+	//创建RabbitMQ实例
+	rabbitmq := NewRabbitMQ(queueName, "", "")
+	var err error
+	//获取connection
+	rabbitmq.Conn, err = amqp.Dial(rabbitmq.Url)
+	rabbitmq.failOnErr("failed to connect rabb"+"itmq!", err)
+	//获取channel
+	rabbitmq.Channel, err = rabbitmq.Conn.Channel()
+	rabbitmq.failOnErr("failed to open a channel", err)
+	return rabbitmq
 }
 
 // Destroy 断开channel 和 connection

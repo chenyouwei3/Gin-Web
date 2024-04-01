@@ -1,13 +1,14 @@
-package config
+package database
 
 import (
 	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
+	"loopy-manager/initialize/config/system"
 	"loopy-manager/initialize/global"
 )
 
 // RedisInit 开启RedisPool
-func RedisInit(config RedisConfig) {
+func RedisInit(config system.RedisConfig) {
 	global.RedisClient = redis.NewClient(&redis.Options{
 		Addr:         config.Address,      // Redis 服务器地址
 		Password:     config.Password,     // Redis 服务器密码

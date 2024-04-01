@@ -12,7 +12,7 @@ func ApiAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method, url := c.Request.Method, c.Request.URL.Path
 		var api model.Api
-		if err := global.ApiTable.Select("url,method").Where("url= ? and method= ?", url, method).Take(&api).Error; err != nil {
+		if err := global.ApiTableSlave0.Select("url,method").Where("url= ? and method= ?", url, method).Take(&api).Error; err != nil {
 			c.JSON(http.StatusOK, utils.ErrorMess("验证api：此api不存在", err.Error()))
 			c.Abort()
 			return
@@ -22,7 +22,7 @@ func ApiAuth() gin.HandlerFunc {
 		user := userInterface.(model.User)
 		//获取user对应的role
 		var role model.Role
-		if err := global.RoleTable.Select("role").Where("role = ?", user.RoleID).Take(&role).Error; err != nil {
+		if err := global.RoleTableSlave0.Select("role").Where("role = ?", user.RoleID).Take(&role).Error; err != nil {
 			c.JSON(http.StatusOK, utils.ErrorMess("验证api：获取用户角色失败", err.Error()))
 			c.Abort()
 			return

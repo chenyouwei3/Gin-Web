@@ -19,7 +19,7 @@ import (
 func GetRequestLog() {
 	//status
 	var logs []model.OperationLog
-	err := global.LogTable.Debug().Select("method").Group("method").Find(&logs).Error
+	err := global.LogTableSlave0.Debug().Select("method").Group("method").Find(&logs).Error
 	if err != nil {
 		fmt.Println("ERR", err)
 
@@ -30,7 +30,7 @@ func GetRequestLog() {
 func GetRequestLog0() {
 	var logs []model.OperationLog
 	go func(mike []model.OperationLog) {
-		err := global.MysqlClient.Debug().Where("status >(?)", global.LogTable.Select("AVG(status)")).Find(&logs).Error
+		err := global.MysqlClientSlave0.Debug().Where("status >(?)", global.LogTableSlave0.Select("AVG(status)")).Find(&logs).Error
 		if err != nil {
 			fmt.Println("ERR", err)
 			return

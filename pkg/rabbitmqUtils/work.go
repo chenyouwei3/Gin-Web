@@ -1,8 +1,6 @@
 package rabbitmqUtils
 
-import (
-	"github.com/streadway/amqp"
-)
+import "github.com/streadway/amqp"
 
 func (r *RabbitMQ) PublishWork(message string) {
 	//1.申请队列，如果队列不存在会自动创建，存在则跳过创建

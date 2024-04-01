@@ -1,4 +1,4 @@
-package config
+package system
 
 import (
 	"github.com/sirupsen/logrus"
@@ -20,7 +20,8 @@ type config struct {
 }
 
 type MysqlConfig struct {
-	Address            string        `yaml:"Address"`            //地址
+	Address0           string        `yaml:"Address0"`           //地址
+	Address1           string        `yaml:"Address1"`           //地址
 	SetMaxIdleConns    int           `yaml:"SetMaxIdleConns"`    //最大空闲连接数
 	SetMaxOpenConns    int           `yaml:"SetMaxOpenConns"`    //最大连接数
 	SetConnMaxLifetime time.Duration `yaml:"SetConnMaxLifetime"` //设置连接空闲超时

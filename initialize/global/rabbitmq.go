@@ -1,6 +1,8 @@
 package global
 
-import "loopy-manager/pkg/rabbitmqUtils"
+import (
+	"loopy-manager/pkg/rabbitmqUtils"
+)
 
 var (
 	RabbitCache *rabbitmqUtils.RabbitMQ

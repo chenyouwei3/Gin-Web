@@ -17,7 +17,7 @@ import (
 )
 
 func CreateUser(user model.User) utils.Response {
-	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.UserTableMaster.Transaction(func(tx *gorm.DB) error {
 		//查询账号重复
 		var userDB model.User
 		if err := tx.Debug().Select("account").Where("account = ?", user.Account).Find(&userDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || userDB.Account == user.Account {
@@ -25,7 +25,7 @@ func CreateUser(user model.User) utils.Response {
 		}
 		// 查询角色是否存在
 		var roleDB model.Role
-		if err := global.RoleTable.Debug().Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
+		if err := global.RoleTableMaster.Debug().Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
 			return fmt.Errorf("查询角色错误:%w", err)
 		}
 		rand.New(rand.NewSource(time.Now().Unix())) //根据时间戳生成种子
@@ -52,7 +52,7 @@ func DeletedUser(idString string) utils.Response {
 	if err != nil {
 		return utils.ErrorMess("失败", err.Error())
 	}
-	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.UserTableMaster.Transaction(func(tx *gorm.DB) error {
 		// 删除用户记录
 		if err := tx.Debug().Delete(&model.User{}, id).Error; err != nil {
 			return err
@@ -65,7 +65,7 @@ func DeletedUser(idString string) utils.Response {
 }
 
 func UpdatedUser(user model.User) utils.Response {
-	if err := global.UserTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.UserTableMaster.Transaction(func(tx *gorm.DB) error {
 		var userDB model.User
 		if err := tx.Where("id = ?", user.Id).Take(&userDB).Error; err != nil {
 			return fmt.Errorf("查询失败%w", err)
@@ -87,7 +87,7 @@ func GetUser(name, currPage, pageSize, startTime, endTime string) utils.Response
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.UserTable
+	tx := global.UserTableSlave0
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -108,7 +108,7 @@ func GetUser(name, currPage, pageSize, startTime, endTime string) utils.Response
 }
 
 func CreateRole(role model.Role) utils.Response {
-	if err := global.RoleTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.RoleTableMaster.Transaction(func(tx *gorm.DB) error {
 		//查询角色重复
 		var roleDB model.Role
 		if err := tx.Debug().Select("name").Where("name = ?", roleDB.Name).Take(&roleDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || role.Name == roleDB.Name {
@@ -116,7 +116,7 @@ func CreateRole(role model.Role) utils.Response {
 		}
 		// 查询api是否存在
 		var apiDB []model.Api
-		if err := global.ApiTable.Select("id").Where("id IN ?", extractRoleID(role.Api)).Find(&apiDB).Error; err != nil {
+		if err := global.ApiTableMaster.Select("id").Where("id IN ?", extractRoleID(role.Api)).Find(&apiDB).Error; err != nil {
 			return fmt.Errorf("查询api错误:%w", err)
 		}
 		if len(apiDB) != len(role.Api) { // 检查查询到的api数量是否和传入的api数量相等
@@ -127,7 +127,6 @@ func CreateRole(role model.Role) utils.Response {
 		if err := tx.Debug().Create(&role).Error; err != nil {
 			return fmt.Errorf("创建角色失败:%w", err)
 		}
-		return nil
 		return nil
 	}); err != nil {
 		return utils.ErrorMess("事务失败", err.Error())
@@ -148,8 +147,8 @@ func DeletedRole(idString string) utils.Response {
 	if err != nil {
 		return utils.ErrorMess("字符串转化整数失败", err.Error())
 	}
-	if err := global.RoleTable.Transaction(func(tx *gorm.DB) error {
-		tx0 := global.RoleApiTable.Begin()
+	if err := global.RoleTableMaster.Transaction(func(tx *gorm.DB) error {
+		tx0 := global.RoleApiTableMaster.Begin()
 		if err := tx0.Model(&model.Role{Id: id}).Association("Api").Clear(); err != nil {
 			tx0.Rollback()
 			return fmt.Errorf("清除关联失败:%w", err)
@@ -167,7 +166,7 @@ func DeletedRole(idString string) utils.Response {
 }
 
 func UpdateRole(role model.Role) utils.Response {
-	if err := global.RoleTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.RoleTableMaster.Transaction(func(tx *gorm.DB) error {
 		var roleDB model.Role
 		if err := tx.Where("id = ?", role.Id).First(&roleDB).Error; err != nil || errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("查询失败%w", err)
@@ -195,7 +194,7 @@ func GetRole(name, currPage, pageSize, startTime, endTime string) utils.Response
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.RoleTable
+	tx := global.RoleTableSlave0
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -216,7 +215,7 @@ func GetRole(name, currPage, pageSize, startTime, endTime string) utils.Response
 }
 
 func CreateApi(api model.Api) utils.Response {
-	if err := global.ApiTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.ApiTableMaster.Transaction(func(tx *gorm.DB) error {
 		//查询角色重复
 		var apiDB model.Api
 		if err := tx.Select("url").Where("url = ?", api.Url).First(&apiDB).Error; (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) || api.Url == apiDB.Url {
@@ -238,8 +237,8 @@ func DeletedApi(idString string) utils.Response {
 	if err != nil {
 		return utils.ErrorMess("字符串转化整数失败", err.Error())
 	}
-	if err := global.ApiTable.Transaction(func(tx *gorm.DB) error {
-		tx0 := global.RoleApiTable.Begin()
+	if err := global.ApiTableMaster.Transaction(func(tx *gorm.DB) error {
+		tx0 := global.RoleApiTableMaster.Begin()
 		if err := tx0.Model(&model.Api{Id: id}).Association("Role").Clear(); err != nil {
 			tx0.Rollback()
 			return fmt.Errorf("清除关联失败:%w", err)
@@ -257,7 +256,7 @@ func DeletedApi(idString string) utils.Response {
 }
 
 func UpdateApi(api model.Api) utils.Response {
-	if err := global.ApiTable.Transaction(func(tx *gorm.DB) error {
+	if err := global.ApiTableMaster.Transaction(func(tx *gorm.DB) error {
 		var apiDB model.Api
 		if err := tx.Where("id = ?", api.Id).First(&apiDB).Error; err != nil || errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("查询失败%w", err)
@@ -278,7 +277,7 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.ApiTable
+	tx := global.ApiTableSlave0
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -299,7 +298,7 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 
 func LoginCookie(user model.User, c *gin.Context) utils.Response {
 	var userDB model.User
-	if err := global.UserTable.Select("account").Where("account = ?", user.Account).First(&userDB).Error; err != nil {
+	if err := global.UserRoleTableSlave0.Select("account").Where("account = ?", user.Account).First(&userDB).Error; err != nil {
 		return utils.ErrorMess("账号已存在:", err)
 	}
 	//校验密码
@@ -308,7 +307,7 @@ func LoginCookie(user model.User, c *gin.Context) utils.Response {
 	}
 	//查询角色信息
 	var roleDB []model.Role
-	if err := global.RoleTable.Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
+	if err := global.RoleTableSlave0.Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
 		return utils.ErrorMess("查询角色错误:", err)
 	}
 	//生成cookie

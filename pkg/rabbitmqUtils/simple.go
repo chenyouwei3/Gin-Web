@@ -1,7 +1,6 @@
 package rabbitmqUtils
 
 import (
-	"fmt"
 	"github.com/streadway/amqp"
 )
 
@@ -40,9 +39,6 @@ func (r *RabbitMQ) ConsumeSimple(Func func(message string) error) {
 		false, //是否设置为无等待（no-wait，等待服务器响应）。
 		nil,
 	)
-	if err != nil {
-		fmt.Println(err)
-	}
 	r.failOnErr("声明接收的消息队列失败", err)
 	//接收消息
 	msgs, err := r.Channel.Consume(

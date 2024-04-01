@@ -1,4 +1,4 @@
-package config
+package database
 
 import (
 	"context"
@@ -6,10 +6,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"loopy-manager/initialize/config/system"
 	"loopy-manager/initialize/global"
 )
 
-func MongodbInit(config MongodbConfig) {
+func MongodbInit(config system.MongodbConfig) {
 	if global.MongodbClient == nil {
 		global.MongodbClient = getMongoClient(config.Address)
 	}
