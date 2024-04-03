@@ -87,7 +87,7 @@ func GetUser(name, currPage, pageSize, startTime, endTime string) utils.Response
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.UserTableSlave0
+	tx := global.UserTableSlave.ChooseSlave()
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -194,7 +194,7 @@ func GetRole(name, currPage, pageSize, startTime, endTime string) utils.Response
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.RoleTableSlave0
+	tx := global.RoleTableSlave.ChooseSlave()
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -277,7 +277,7 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 	if err != nil {
 		return utils.ErrorMess("数据转化失败", err.Error())
 	}
-	tx := global.ApiTableSlave0
+	tx := global.ApiTableSlave.ChooseSlave()
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
@@ -298,7 +298,7 @@ func GetApi(name, currPage, pageSize, startTime, endTime string) utils.Response 
 
 func LoginCookie(user model.User, c *gin.Context) utils.Response {
 	var userDB model.User
-	if err := global.UserRoleTableSlave0.Select("account").Where("account = ?", user.Account).First(&userDB).Error; err != nil {
+	if err := global.UserRoleTableSlave.ChooseSlave().Select("account").Where("account = ?", user.Account).First(&userDB).Error; err != nil {
 		return utils.ErrorMess("账号已存在:", err)
 	}
 	//校验密码
@@ -307,7 +307,7 @@ func LoginCookie(user model.User, c *gin.Context) utils.Response {
 	}
 	//查询角色信息
 	var roleDB []model.Role
-	if err := global.RoleTableSlave0.Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
+	if err := global.RoleTableSlave.ChooseSlave().Select("id").Where("id = ?", user.RoleID).Find(&roleDB).Error; err != nil {
 		return utils.ErrorMess("查询角色错误:", err)
 	}
 	//生成cookie

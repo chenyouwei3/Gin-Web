@@ -8,7 +8,7 @@ import (
 
 func InitConfig() {
 	//数据库
-	database.MongodbInit(*system.Config.Mongodb)
+	//database.MongodbInit(*system.Config.Mongodb)
 	database.MysqlInit(*system.Config.Mysql)
 	database.RedisInit(*system.Config.Redis)
 	//消息队列
@@ -16,4 +16,7 @@ func InitConfig() {
 	//系统
 	system.SnowFlakeInit()
 	system.LogInit()
+	//mysql
+	system.MysqlPoolInit()
+	go system.MysqlBinlogInit()
 }

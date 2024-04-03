@@ -16,7 +16,7 @@ func GetEngine() *gin.Engine {
 	//权限/jwt/cookie/session
 	//engine.Use(middleware.AuthTokenMiddleware(), middleware.ApiAuth())
 	//缓存
-	engine.Use(middleware.CacheTest())
+	//engine.Use(middleware.CacheTest())
 	AuthCenterRouter(engine)
 	return engine
 }

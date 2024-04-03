@@ -6,7 +6,6 @@ import (
 )
 
 func AuthCenterRouter(engine *gin.Engine) {
-
 	user := engine.Group("/user")
 	{
 		user.POST("/create", controller.CreateUser)     //增user*
