@@ -1,10 +1,14 @@
 package messageQueue
 
 import (
-	"loopy-manager/initialize/global"
-	"loopy-manager/pkg/rabbitmqUtils"
+	"loopy-manager/initialize/config/messageQueue/rabbitmqUtils"
+)
+
+var (
+	RabbitCache *rabbitmqUtils.RabbitMQ
 )
 
 func RabbitmqInit() {
-	global.RabbitCache = rabbitmqUtils.NewRabbitMqUrl("redisCache", "", "")
+	RabbitCache = rabbitmqUtils.NewRabbitMqUrl("redisCache", "", "")
+	RabbitCache.ConsumeSimple()
 }

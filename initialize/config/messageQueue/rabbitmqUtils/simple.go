@@ -1,7 +1,9 @@
 package rabbitmqUtils
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	"loopy-manager/initialize/global"
 )
 
 func (r *RabbitMQ) PublishSimple(message string) {
@@ -29,7 +31,7 @@ func (r *RabbitMQ) PublishSimple(message string) {
 }
 
 // ConsumeSimple simple 模式下消费者
-func (r *RabbitMQ) ConsumeSimple(Func func(message string) error) {
+func (r *RabbitMQ) ConsumeSimple() {
 	//1.申请队列，如果队列不存在会自动创建，存在则跳过创建
 	q, err := r.Channel.QueueDeclare(
 		r.QueueName,
@@ -53,7 +55,14 @@ func (r *RabbitMQ) ConsumeSimple(Func func(message string) error) {
 	r.failOnErr("创建消费者失败", err)
 	go func() {
 		for d := range msgs {
-			Func(string(d.Body))
+			//删除以 "user:" 开头的所有缓存键
+			keys, _ := global.RedisClient.Keys(string(d.Body) + ":*").Result()
+			// 删除符合条件的所有缓存键
+			for _, key := range keys {
+				if err := global.RedisClient.Del(key).Err(); err != nil {
+					logrus.Error("删除 Redis 缓存键失败：", key, err)
+				}
+			}
 		}
 	}()
 	select {}

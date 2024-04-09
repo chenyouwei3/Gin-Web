@@ -35,4 +35,18 @@ func SnowFlakeInit() { // 初始化雪花算法
 		}
 		global.LogSnowFlake = node
 	}
+	if global.MomentSnowFlake == nil {
+		node, err := snowflake.NewNode(5)
+		if err != nil {
+			fmt.Println("snowflake init:", err)
+		}
+		global.MomentSnowFlake = node
+	}
+	if global.CommentSnowFlake == nil {
+		node, err := snowflake.NewNode(6)
+		if err != nil {
+			fmt.Println("snowflake init:", err)
+		}
+		global.CommentSnowFlake = node
+	}
 }

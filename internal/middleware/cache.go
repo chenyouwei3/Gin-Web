@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"loopy-manager/initialize/global"
+	"loopy-manager/initialize/config/messageQueue"
 	"loopy-manager/pkg/redisUtils"
 	"net/http"
 	"sync"
@@ -114,7 +114,7 @@ func CacheTest2() gin.HandlerFunc {
 		err := redisUtils.Redis{}.DeletedValue(path)
 		if err != nil {
 			logrus.Error("删除redis缓存错误:", err)
-			global.RabbitCache.PublishSimple(path) //消息队列补偿删除
+			messageQueue.RabbitCache.PublishSimple(path) //消息队列补偿删除
 			return
 		}
 	}

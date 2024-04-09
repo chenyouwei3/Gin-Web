@@ -54,4 +54,14 @@ var (
 	LogTableSlave  TableSlave
 	LogTableSlave0 *gorm.DB
 	LogTableSlave1 *gorm.DB
+
+	CommentTableMaster *gorm.DB
+	CommentTableSlave  TableSlave
+	CommentTableSlave0 *gorm.DB
+	CommentTableSlave1 *gorm.DB
+
+	MomentTableMaster *gorm.DB
+	MomentTableSlave  TableSlave
+	MomentTableSlave0 *gorm.DB
+	MomentTableSlave1 *gorm.DB
 )

@@ -36,6 +36,8 @@ func mysqlInitMaster(config system.MysqlConfig) {
 		global.UserRoleTableMaster = global.MysqlClientMaster.Table("user_roles")
 		global.RoleApiTableMaster = global.MysqlClientMaster.Table("role_apis")
 		global.LogTableMaster = global.MysqlClientMaster.Table("operation_logs")
+		global.CommentTableMaster = global.MysqlClientMaster.Table("comments")
+		global.MomentTableMaster = global.MysqlClientMaster.Table("moments")
 	}
 	logrus.Println("mysql-Master连接成功")
 }
@@ -61,6 +63,8 @@ func mysqlInitSlave0(config system.MysqlConfig) {
 		global.UserRoleTableSlave0 = global.MysqlClientSlave0.Table("user_roles")
 		global.RoleApiTableSlave0 = global.MysqlClientSlave0.Table("role_apis")
 		global.LogTableSlave0 = global.MysqlClientSlave0.Table("operation_logs")
+		global.CommentTableSlave0 = global.MysqlClientSlave0.Table("comments")
+		global.MomentTableSlave0 = global.MysqlClientSlave0.Table("moments")
 	}
 	logrus.Println("mysql-Slave连接成功")
 }
@@ -86,6 +90,8 @@ func mysqlInitSlave1(config system.MysqlConfig) {
 		global.UserRoleTableSlave1 = global.MysqlClientSlave1.Table("user_roles")
 		global.RoleApiTableSlave1 = global.MysqlClientSlave1.Table("role_apis")
 		global.LogTableSlave1 = global.MysqlClientSlave1.Table("operation_logs")
+		global.CommentTableSlave1 = global.MysqlClientSlave1.Table("comments")
+		global.MomentTableSlave1 = global.MysqlClientSlave1.Table("moments")
 	}
 	logrus.Println("mysql-Slave连接成功")
 }

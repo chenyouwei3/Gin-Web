@@ -45,8 +45,14 @@ func MysqlPoolInit() {
 	global.LogTableSlave = global.TableSlave{Mutex: new(sync.Mutex), CurrIndex: 0,
 		Slave: []*gorm.DB{
 			global.LogTableSlave0,
-			global.LogTableSlave0,
+			global.LogTableSlave1,
 		},
 	}
 
+	global.CommentTableSlave = global.TableSlave{Mutex: new(sync.Mutex), CurrIndex: 0,
+		Slave: []*gorm.DB{
+			global.CommentTableSlave0,
+			global.CommentTableSlave1,
+		},
+	}
 }

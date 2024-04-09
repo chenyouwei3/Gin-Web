@@ -9,7 +9,7 @@ import (
 func GetEngine() *gin.Engine {
 	engine := gin.Default()
 	//路由日志*---*跨域
-	//engine.Use(middleware.OperationLogMiddleware(), middleware.CorsMiddleware())
+	engine.Use(middleware.OperationLogMiddleware(), middleware.CorsMiddleware())
 	//限流
 	engine.Use(middleware.LimiterBucket(1, 1))
 	engine.POST("/login", controller.Login)
@@ -18,5 +18,6 @@ func GetEngine() *gin.Engine {
 	//缓存
 	//engine.Use(middleware.CacheTest())
 	AuthCenterRouter(engine)
+	CommentRouter(engine)
 	return engine
 }

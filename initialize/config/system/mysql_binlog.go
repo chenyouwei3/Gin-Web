@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/go-mysql-org/go-mysql/replication"
 	"github.com/sirupsen/logrus"
-	"loopy-manager/initialize/global"
+	"loopy-manager/initialize/config/messageQueue"
 	"os"
 	"os/signal"
 	"syscall"
@@ -48,11 +48,11 @@ func MysqlBinlogInit() {
 		case *replication.RowsEvent:
 			switch ev.Header.EventType {
 			case replication.WRITE_ROWS_EVENTv1, replication.WRITE_ROWS_EVENTv2:
-				global.RabbitCache.PublishSimple(string(e.Table.Table))
+				messageQueue.RabbitCache.PublishSimple(string(e.Table.Table))
 			case replication.UPDATE_ROWS_EVENTv1, replication.UPDATE_ROWS_EVENTv2:
-				global.RabbitCache.PublishSimple(string(e.Table.Table))
+				messageQueue.RabbitCache.PublishSimple(string(e.Table.Table))
 			case replication.DELETE_ROWS_EVENTv1, replication.DELETE_ROWS_EVENTv2:
-				global.RabbitCache.PublishSimple(string(e.Table.Table))
+				messageQueue.RabbitCache.PublishSimple(string(e.Table.Table))
 			}
 		case *replication.QueryEvent:
 			logrus.Error("SQL 查询语句：%s\n", e.Query)
