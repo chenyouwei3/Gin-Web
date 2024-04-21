@@ -2,6 +2,7 @@ package main
 
 import (
 	"loopy-manager/initialize"
+	"loopy-manager/internal/controller/ticker"
 	"loopy-manager/internal/router"
 )
 
@@ -10,7 +11,7 @@ func init() {
 }
 
 func main() {
-	//global.MysqlClientMaster.AutoMigrate(model.Moment{}, model.Comment{})
+	go ticker.CornTicker()
 	engine := router.GetEngine()
 	if err := engine.Run(":8098"); err != nil {
 		panic(err)

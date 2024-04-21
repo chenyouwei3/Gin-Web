@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"loopy-manager/initialize/config/database"
+	"loopy-manager/initialize/config/socketServer"
 	"loopy-manager/initialize/config/system"
 )
 
@@ -13,9 +14,11 @@ func InitConfig() {
 	////系统
 	system.SnowFlakeInit()
 	system.LogInit()
-	////mysql
-	system.MysqlPoolInit() //mysql主从结构体的初始化
-	//go messageQueue.RabbitmqInit()
-	////mysql
+	//mysql主从结构体的初始化
+	system.MysqlPoolInit()
+	//Cache
 	//go system.MysqlBinlogInit()
+	//go messageQueue.RabbitmqInit()
+	//接收设备
+	socketServer.SocketServerStart()
 }

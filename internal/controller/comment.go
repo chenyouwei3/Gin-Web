@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"loopy-manager/internal/model"
 	"loopy-manager/internal/service"
@@ -15,7 +14,6 @@ func AddComment(c *gin.Context) {
 		c.JSON(e.ParameterStructError, e.GetMsg(e.ParameterStructError))
 		return
 	}
-	fmt.Println(comment, "controller")
 	c.JSON(http.StatusOK, service.AddComment(comment))
 }
 
@@ -30,6 +28,5 @@ func AddMoment(c *gin.Context) {
 		c.JSON(e.ParameterStructError, e.GetMsg(e.ParameterStructError))
 		return
 	}
-	fmt.Println(moment, "controller")
 	c.JSON(http.StatusOK, service.AddMoment(moment))
 }
