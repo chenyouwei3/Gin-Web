@@ -8,7 +8,7 @@ import (
 
 func InitConfig() {
 	//数据库
-	//database.MongodbInit(*system.Config.Mongodb)
+	database.MongodbInit(*system.Config.Mongodb)
 	database.MysqlInit(*system.Config.Mysql)
 	database.RedisInit(*system.Config.Redis)
 	////系统

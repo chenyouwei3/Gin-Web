@@ -18,7 +18,6 @@ func MongodbInit(config system.MongodbConfig) {
 	{
 		global.DeviceColl = smartGraphiteHBClone.Collection("device")
 		//速控云
-
 	}
 	sukonCloud := global.MongodbClient.Database("sukouCloud")
 	{

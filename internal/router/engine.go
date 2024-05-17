@@ -13,7 +13,7 @@ func GetEngine() *gin.Engine {
 	engine.Use(middleware.LimiterBucket(1, 1))
 	//engine.POST("/login", controller.Login)
 	//权限/jwt/cookie/session
-	engine.Use(middleware.AuthTokenMiddleware(), middleware.ApiAuth())
+	//engine.Use(middleware.AuthTokenMiddleware(), middleware.ApiAuth())
 	//缓存
 	engine.Use(middleware.CacheTest())
 	AuthCenterRouter(engine)

@@ -15,5 +15,4 @@ func CommentRouter(engine *gin.Engine) {
 	{
 		moment.POST("/create", controller.AddMoment)
 	}
-
 }
