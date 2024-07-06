@@ -1,1 +1,1 @@
-# 初学GOlang小demo
+# 初学Golang小demo
