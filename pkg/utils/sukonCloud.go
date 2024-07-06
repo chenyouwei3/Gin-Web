@@ -10,8 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"io"
 	"log"
-	"loopy-manager/initialize/global"
-	"loopy-manager/internal/model"
+	global2 "loopy-manager/app/global"
+	"loopy-manager/app/model"
 	"math"
 	"math/rand"
 	"net/http"
@@ -31,10 +31,10 @@ func SukonToken() {
 	random := fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000)) //3.随机6位字母与数字的字符串
 	timestamp := fmt.Sprintf("%v", timeUnix)                                                    //4.当前时间戳（13位）
 	ctx := md5.New()                                                                            //md5加密
-	ctx.Write([]byte(global.SuKonUid + global.SuKonSid + random + timestamp))
+	ctx.Write([]byte(global2.SuKonUid + global2.SuKonSid + random + timestamp))
 	signature := strings.ToUpper(hex.EncodeToString(ctx.Sum(nil))) //签名转换成字符串和大写32位
 	tokenUrl := "http://sukon-cloud.com/api/v1/token/initToken"
-	body := strings.NewReader(fmt.Sprintf("uid=%s&sid=%s&random=%s&timestamp=%s&signature=%s", global.SuKonUid, global.SuKonSid, random, timestamp, signature))
+	body := strings.NewReader(fmt.Sprintf("uid=%s&sid=%s&random=%s&timestamp=%s&signature=%s", global2.SuKonUid, global2.SuKonSid, random, timestamp, signature))
 	var data model.SuKonToken
 	res, err := http.Post(tokenUrl, "application/x-www-form-urlencoded", body)
 	if err != nil {
@@ -54,7 +54,7 @@ func SukonToken() {
 	if err != nil {
 		log.Println("解析错误:", err.Error())
 	}
-	global.SukonCloudToken = data.SukonTokenData.Token //定义全局变量
+	global2.SukonCloudToken = data.SukonTokenData.Token //定义全局变量
 	hour := int(math.Floor(float64(data.SukonTokenData.Expire / 3600)))
 	//token时效等于0,重新获取token
 	if hour <= 0 {
@@ -66,7 +66,7 @@ func SukonToken() {
 			hour = hour - 1
 		}
 		t := strconv.Itoa(hour)
-		global.Spec = "0 0 */" + t + " * * *"
+		global2.Spec = "0 0 */" + t + " * * *"
 	}
 	return
 }
@@ -74,7 +74,7 @@ func SukonToken() {
 func GetSKCloudHisData(box model.Box, data model.RealtimeData, str string) model.Box { //数据标准格式化
 	//查找设备
 	var BoxDevice model.Device
-	if err := global.DeviceColl.FindOne(context.TODO(), bson.M{"code": box.BoxId}).Decode(&BoxDevice); err != nil {
+	if err := global2.DeviceColl.FindOne(context.TODO(), bson.M{"code": box.BoxId}).Decode(&BoxDevice); err != nil {
 		log.Println(box.BoxId+"设备不存在", err)
 	}
 	box.DeviceTypeId = BoxDevice.DeviceTypeId

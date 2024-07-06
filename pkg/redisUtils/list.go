@@ -2,7 +2,7 @@ package redisUtils
 
 import (
 	"fmt"
-	"loopy-manager/initialize/global"
+	"loopy-manager/app/global"
 )
 
 func (r Redis) SetValueList(key, value string) error {

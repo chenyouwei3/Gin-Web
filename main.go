@@ -1,11 +1,12 @@
 package main
 
 import (
-	"loopy-manager/internal/router"
+	"loopy-manager/app/router"
+	"loopy-manager/initialize"
 )
 
 func init() {
-	//initialize.InitConfig()
+	initialize.InitConfig()
 }
 
 func main() {
