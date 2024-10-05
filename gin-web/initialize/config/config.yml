@@ -1,0 +1,15 @@
+app:
+  name: exchange
+  ip: 127.0.0.1
+  port: 8888
+  mode: debug
+
+mysql:
+  driverName: mysql
+  host: 120.46.48.255
+  port: 3306
+  database: exchange
+  username: root
+  password: root
+  charset: utf8mb4
+
