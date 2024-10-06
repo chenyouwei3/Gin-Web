@@ -3,7 +3,6 @@ package mysql
 import (
 	"gin-web/initialize/config"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,12 +14,12 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	host := viper.GetString(config.Conf.MySQL.Host)
-	port := viper.GetString(config.Conf.MySQL.Port)
-	database := viper.GetString(config.Conf.MySQL.Database)
-	username := viper.GetString(config.Conf.MySQL.UserName)
-	password := viper.GetString(config.Conf.MySQL.Password)
-	charset := viper.GetString(config.Conf.MySQL.Charset)
+	host := config.Conf.MySQL.Host
+	port := config.Conf.MySQL.Port
+	database := config.Conf.MySQL.Database
+	username := config.Conf.MySQL.UserName
+	password := config.Conf.MySQL.Password
+	charset := config.Conf.MySQL.Charset
 	dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", database, "?charset=" + charset + "&parseTime=true"}, "")
 	err := databaseInit(dsn)
 	if err != nil {
@@ -59,6 +58,5 @@ func databaseInit(connString string) error {
 	// 设置连接最大生命周期为 30 秒
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 	DB = db
-	migration()
 	return err
 }

@@ -6,9 +6,9 @@ app:
 
 mysql:
   driverName: mysql
-  host: 120.46.48.255
-  port: 3306
-  database: exchange
+  host: 62.234.32.141
+  port: 3300
+  database: web
   username: root
   password: root
   charset: utf8mb4
