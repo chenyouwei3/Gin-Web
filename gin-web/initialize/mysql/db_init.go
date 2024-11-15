@@ -1,33 +1,22 @@
 package mysql
 
 import (
+	"fmt"
 	"gin-web/initialize/config"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"strings"
 	"time"
 )
 
 var DB *gorm.DB
 
-func InitDB() {
-	host := config.Conf.MySQL.Host
-	port := config.Conf.MySQL.Port
-	database := config.Conf.MySQL.Database
-	username := config.Conf.MySQL.UserName
-	password := config.Conf.MySQL.Password
-	charset := config.Conf.MySQL.Charset
-	dsn := strings.Join([]string{username, ":", password, "@tcp(", host, ":", port, ")/", database, "?charset=" + charset + "&parseTime=true"}, "")
-	err := databaseInit(dsn)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func databaseInit(connString string) error {
+func InitDB() error {
+	confDB := config.Conf.MySQL
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true",
+		confDB.UserName, confDB.Password, confDB.Host, confDB.Port, confDB.Database, confDB.Charset)
 	var ormLogger logger.Interface
 	if gin.Mode() == "debug" {
 		ormLogger = logger.Default.LogMode(logger.Info)
@@ -35,7 +24,7 @@ func databaseInit(connString string) error {
 		ormLogger = logger.Default
 	}
 	db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       connString,
+		DSN:                       dsn,
 		DefaultStringSize:         256,
 		DisableDatetimePrecision:  true,
 		DontSupportRenameIndex:    true,
@@ -48,7 +37,7 @@ func databaseInit(connString string) error {
 		},
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 	sqlDB, _ := db.DB()
 	// 设置最大空闲连接数为 20
@@ -58,5 +47,5 @@ func databaseInit(connString string) error {
 	// 设置连接最大生命周期为 30 秒
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 	DB = db
-	return err
+	return nil
 }

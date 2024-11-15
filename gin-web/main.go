@@ -1,40 +1,52 @@
 package main
 
 import (
+	"gin-web/initialize/cacheRedis"
 	"gin-web/initialize/config"
 	mysqlDB "gin-web/initialize/mysql"
+	"gin-web/initialize/runLog"
 	"gin-web/models/authcCenter"
-	"time"
+	"gin-web/routers"
+	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 func init() {
-	config.InitConfig()
-	mysqlDB.InitDB()
-}
-
-func main() {
-	migration()
-	time.Sleep(time.Hour)
-	//gin.SetMode(gin.ReleaseMode)
-}
-
-func migration() {
-	// 定义要迁移的表
-	tables := []interface{}{
-		&authcCenter.User{},
-		&authcCenter.Role{},
-		&authcCenter.Api{},
-	}
-	for _, table := range tables {
-		if mysqlDB.DB.Migrator().HasTable(table) {
-			return // 如果表存在，直接返回
-		}
-	}
-	err := mysqlDB.DB.Set("gorm:table_options", "charset=utf8mb4").AutoMigrate(
-		&authcCenter.User{},
-		&authcCenter.Role{},
-		&authcCenter.Api{})
+	err := config.InitConfig() //初始化配置文件
 	if err != nil {
 		panic(err)
 	}
+	if config.Conf.APP.Mode == "debug" { //设置运行模式
+		gin.SetMode(gin.DebugMode)
+	}
+	err = runLog.InitRunLog()
+	if err != nil {
+		panic(err)
+	}
+	err = mysqlDB.InitDB() //初始化mysql数据库
+	if err != nil {
+		panic(err)
+	}
+	err = cacheRedis.InitRedis() //初始化缓存redis
+	if err != nil {
+		panic(err)
+	}
+	err = mysqlDB.DB.AutoMigrate( //数据库迁移
+		&authcCenter.User{},
+		&authcCenter.Role{},
+		&authcCenter.Api{},
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	//pprof检测程序性能
+	go func() {
+		log.Println(http.ListenAndServe("127.0.0.1:6066", nil))
+	}()
+	routers.RouterServerRun()
 }

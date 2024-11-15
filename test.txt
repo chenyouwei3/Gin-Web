@@ -1,0 +1,85 @@
+】def ExecuteStatisticalQueries(self, request):
+     query_params = request.query_params
+     filters = {
+         'node_name': query_params.get('node_name'),
+         'product_name': query_params.get('product_name'),
+         'case_id': query_params.get('case_id'),
+         'case_name': query_params.get('case_name'),
+         'creator': query_params.get('creator'),
+         'modifier': query_params.get('modifier')
+     }
+
+     # 初始查询
+     sql_query = """
+         SELECT id, description, creator, modifier, update_datetime, create_datetime,
+                product_name, module_name, priority, case_name, factory_checkstatus,
+                cicd_checkstatus, keyword, parent_id, node_name, level
+         FROM test_script
+         WHERE 1=1
+     """
+
+     # 添加筛选条件
+     if filters['node_name']:
+         sql_query += " AND node_name = %s"
+     if filters['product_name']:
+         sql_query += " AND product_name = %s"
+     if filters['case_id']:
+         sql_query += " AND case_id = %s"
+     if filters['case_name']:
+         sql_query += " AND case_name LIKE %s"
+     if filters['creator']:
+         sql_query += " AND creator = %s"
+     if filters['modifier']:
+         sql_query += " AND modifier = %s"
+
+     # 添加递归查询条件（如果有）
+     if filters['node_name']:
+         sql_query = """
+             WITH RECURSIVE cte AS (
+                 -- 初始层级，选择根节点
+                 SELECT id, description, creator, modifier, update_datetime, create_datetime,
+                        product_name, module_name, priority, case_name, factory_checkstatus,
+                        cicd_checkstatus, keyword, parent_id, node_name, level
+                 FROM test_script
+                 WHERE node_name = %s
+                 UNION ALL
+                 SELECT t.id, t.description, t.creator, t.modifier, t.update_datetime, t.create_datetime,
+                        t.product_name, t.module_name, t.priority, t.case_name, t.factory_checkstatus,
+                        t.cicd_checkstatus, t.keyword, t.parent_id, t.node_name, t.level
+                 FROM test_script t
+                 INNER JOIN cte ON t.parent_id = cte.id
+             )
+             SELECT * FROM cte
+         """
+         # 执行查询
+         with connection.cursor() as cursor:
+             cursor.execute(sql_query, (filters['node_name'],) if filters['node_name'] else [])
+             rows = cursor.fetchall()
+     else:
+         # 执行查询
+         with connection.cursor() as cursor:
+             cursor.execute(sql_query, [
+                 filters['node_name'], filters['product_name'], filters['case_id'],
+                 f"%{filters['case_name']}%" if filters['case_name'] else None,
+                 filters['creator'], filters['modifier']
+             ])
+             rows = cursor.fetchall()
+
+     # 处理查询结果
+     result = []
+     for row in rows:
+         result.append({
+             'id': row[0], 'description': row[1], 'creator': row[2], 'modifier': row[3],
+             'update_datetime': row[4], 'create_datetime': row[5], 'product_name': row[6],
+             'module_name': row[7], 'priority': row[8], 'case_name': row[9],
+             'factory_checkstatus': row[10], 'cicd_checkstatus': row[11], 'keyword': row[12],
+             'parent_id': row[13], 'node_name': row[14], 'level': row[15]
+         })
+
+     # 进行分页处理
+     # 这部分的分页处理取决于你如何设置查询的偏移量和限制，比如
+     # page_size = 10
+     # page_number = 1
+     # result = result[(page_number - 1) * page_size: page_number * page_size]
+
+     return result

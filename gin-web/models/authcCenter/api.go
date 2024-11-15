@@ -1,11 +1,9 @@
 package authcCenter
 
 import (
-	"fmt"
+	"errors"
 	mysqlDB "gin-web/initialize/mysql"
-	"gin-web/utils"
 	"gorm.io/gorm"
-	"strconv"
 	"time"
 )
 
@@ -20,78 +18,64 @@ type Api struct {
 	Roles      []Role    `gorm:"many2many:role_apis;"`                               //gorm结构体
 }
 
+// 添加Api
 func (a *Api) Add() error {
 	a.CreateTime = time.Now()
-	if err := mysqlDB.DB.Model(&Api{}).Create(a).Error; err != nil {
+	if err := mysqlDB.DB.Create(a).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *Api) Deleted(idString string) error {
-	id, err := strconv.ParseInt(idString, 10, 64)
-	if err != nil {
-		return err
-	}
+// 删除Api
+func (a *Api) Deleted(id int64) error {
 	//启动事务
-	return mysqlDB.DB.Model(&Api{}).Transaction(func(tx *gorm.DB) error {
-		// 查找 Api 记录并预加载关联的 Roles
-		var api Api
-		if err := tx.Preload("Roles").First(&api, id).Error; err != nil {
-			return err
-		}
+	return mysqlDB.DB.Transaction(func(tx *gorm.DB) error {
 		// 清除 Api 与 Roles 的关联关系
-		if err := tx.Model(&api).Association("Roles").Clear(); err != nil {
+		err := tx.Model(&Api{Id: id}).Association("Roles").Clear()
+		if err != nil {
 			return err
 		}
 		// 删除 Api 记录
-		if err := tx.Delete(&api).Error; err != nil {
+		err = tx.Where("id = ?", id).Delete(&Api{}).Error
+		if err != nil {
 			return err
 		}
 		return nil
 	})
 }
 
-func (a *Api) Update(api Api) error {
+// 修改Api
+func (a *Api) Update() error {
 	//修改参数
-	if api.Method != "POST" && api.Method != "GET" && api.Method != "DELETE" && api.Method != "PUT" {
-		return fmt.Errorf("请求方法错误")
-	}
-	api.UpdateTime = time.Now()
-
-	if err := mysqlDB.DB.Model(&Api{}).Save(&api).Error; err != nil {
+	a.UpdateTime = time.Now()
+	if err := mysqlDB.DB.Updates(a).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (a *Api) GetAll(currPage, PageSize, startTime, endTime string) ([]Api, error) {
-	skip, limit, err := utils.GetPage(currPage, PageSize)
-	if err != nil {
-		return nil, err
-	}
+func (a *Api) GetAll(name string, skip, limit int, startTime, endTime string) ([]Api, error) {
 	tx := mysqlDB.DB
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
 	}
-	var count int64
 	var resDB []Api
-	res := tx.Model(&Api{}).Limit(limit).Offset(skip).Find(&resDB).Count(&count)
+	//Where("name like ?", "%"+name+"%")
+	res := tx.Limit(limit).Offset(skip).Find(&resDB)
 	if res.Error != nil {
-		return nil, err
+		return nil, res.Error
 	}
 	return resDB, nil
 }
 
+// 查看是否存在
 func (a *Api) IsExist() (bool, error) {
 	//查重
-	var count int64
-	err := mysqlDB.DB.Model(&Api{}).Where("name = ? AND url = ?", a.Name, a.Url).Count(&count).Error
-	if err != nil {
-		return false, err
+	var api Api
+	err := mysqlDB.DB.Model(&Api{}).Where("name = ? AND url = ?", a.Name, a.Url).Take(&api).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, err // 其他错误
 	}
-	if count == 0 {
-		return true, nil
-	}
-	return false, fmt.Errorf("存在记录%d", count)
+	return true, nil // 存在
 }

@@ -20,7 +20,7 @@ type User struct {
 	CreateTime time.Time `json:"createTime" gorm:"column:createTime;autoCreateTime"`        //创建time
 	UpdateTime time.Time `json:"updateTime" gorm:"column:updateTime;autoCreateTime"`        //修改time
 	RoleID     int64     `json:"role_id" gorm:"column:role_id;type:bigint;not null"`        // 属于那个角色
-	Role       Role      `gorm:"foreignKey:RoleID"`                                         //外键role
+	Role       Role      `gorm:"many2many:user_roles"`                                      //外键role
 }
 
 func (u *User) Add(user User) error {
