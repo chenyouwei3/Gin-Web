@@ -9,13 +9,11 @@ import (
 func main() {
 	// 创建一个密钥
 	secretKey := []byte("your-secret-key")
-
 	// 创建一个声明
 	claims := jwt.MapClaims{
 		"foo": "bar",
 		"nbf": 15000,
 	}
-
 	// 创建一个新的 Token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	fmt.Println("key", secretKey)

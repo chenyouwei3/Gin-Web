@@ -8,8 +8,6 @@ import (
 	"gin-web/models/authcCenter"
 	"gin-web/routers"
 	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
 	_ "net/http/pprof"
 )
 
@@ -45,8 +43,9 @@ func init() {
 
 func main() {
 	//pprof检测程序性能
-	go func() {
-		log.Println(http.ListenAndServe("127.0.0.1:6066", nil))
-	}()
+	//go func() {
+	//	log.Println(http.ListenAndServe("127.0.0.1:6066", nil))
+	//}()
 	routers.RouterServerRun()
+
 }

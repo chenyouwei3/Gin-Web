@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+	"gin-web/initialize/runLog"
 	"gin-web/models/authcCenter"
 	"gin-web/utils"
 	"gin-web/utils/extendController"
@@ -10,40 +12,47 @@ import (
 )
 
 type RoleController struct {
+	extendController.BaseController
 }
 
 type roleRequest struct {
-	Role authcCenter.Role
-	Apis []int `json:"apis"`
+	Role        authcCenter.Role
+	AddApis     []int `json:"addApis"`
+	DeletedApis []int `json:"deletedApis"`
 }
 
 func (r RoleController) Add(c *gin.Context) {
 	var role roleRequest
 	if err := c.Bind(&role); err != nil {
-		c.JSON(http.StatusInternalServerError, extendController.ErrBody)
+		runLog.ZapLog.Info("参数错误,role绑定错误" + err.Error())
+		r.SendParameterErrorResponse(c, err)
 		return
 	}
 	isExist, err := role.Role.IsExist()
 	if isExist || err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		runLog.ZapLog.Info("数据重复")
+		r.SendDataDuplicationResponse(c, err)
 		return
 	}
-	if err = role.Role.Add(role.Apis); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+	if err = role.Role.Add(role.AddApis); err != nil {
+		runLog.ZapLog.Info("添加role失败" + err.Error())
+		r.SendCustomResponse(c, "添加role失败", "add role failed", err)
 		return
 	}
-	c.JSON(http.StatusOK, "successful")
+	r.SendSuccessResponse(c, "success")
 }
 
 func (r RoleController) Deleted(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
-		c.JSON(http.StatusInternalServerError, extendController.ErrQuery)
+		runLog.ZapLog.Info("参数错误,id为空")
+		r.SendParameterErrorResponse(c, errors.New("参数错误,id为空"))
 		return
 	}
 	idInt64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, extendController.ErrFormatConversion)
+		runLog.ZapLog.Info("id格式转化错误")
+		r.SendParameterErrorResponse(c, errors.New("id转化错误为空"))
 		return
 	}
 	//基于model
@@ -51,43 +60,42 @@ func (r RoleController) Deleted(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, "successful")
+	r.SendSuccessResponse(c, "success")
 }
 
-func (r *RoleController) Update(c *gin.Context) {
-	var api authcCenter.Api
-	if err := c.Bind(&api); err != nil {
-		c.JSON(10002, extendController.ErrBody)
+func (r RoleController) Update(c *gin.Context) {
+	var role roleRequest
+	if err := c.Bind(&role); err != nil {
+		runLog.ZapLog.Info("参数错误,role绑定错误" + err.Error())
+		r.SendParameterErrorResponse(c, err)
 		return
 	}
-	if api.Method != "POST" && api.Method != "GET" && api.Method != "DELETE" && api.Method != "PUT" {
-		c.JSON(10002, extendController.ErrFormat)
+	if err := role.Role.Update(role.AddApis, role.DeletedApis); err != nil {
+		runLog.ZapLog.Info("更新role失败" + err.Error())
+		r.SendCustomResponse(c, "更新role失败", "update role failed", err)
 		return
 	}
-
-	if err := api.Update(); err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
-		return
-	}
-	c.JSON(http.StatusOK, "successful")
+	r.SendSuccessResponse(c, "success")
 }
 
-func (r *RoleController) GetAll(c *gin.Context) {
-	name := c.Query("name")
+func (r RoleController) GetAll(c *gin.Context) {
+	var role authcCenter.Role
+	role.Name = c.Query("name")
 	currPage := c.DefaultQuery("currPage", "1")
 	pageSize := c.DefaultQuery("pageSize", "10")
 	startTime := c.Query("startTime")
 	endTime := c.Query("endTime")
 	skip, limit, err := utils.GetPage(currPage, pageSize)
 	if err != nil {
-		c.JSON(10001, extendController.ErrQuery)
+		runLog.ZapLog.Info("参数错误,分页参数转化错误" + err.Error())
+		r.SendParameterErrorResponse(c, err)
 		return
 	}
-
-	resDB, err := new(authcCenter.Role).GetAll(name, skip, limit, startTime, endTime)
+	resDB, err := role.GetAll(skip, limit, startTime, endTime)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		runLog.ZapLog.Info("查询role失败" + err.Error())
+		r.SendCustomResponse(c, "查询role失败", "find role failed", err)
 		return
 	}
-	c.JSON(http.StatusOK, resDB)
+	r.SendSuccessResponse(c, resDB)
 }

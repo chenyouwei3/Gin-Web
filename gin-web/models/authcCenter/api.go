@@ -14,7 +14,7 @@ type Api struct {
 	Method     string    ` json:"method" gorm:"column:method;type:varchar(8);not null"`
 	Desc       string    `json:"desc" gorm:"column:desc;type:varchar(20)"`           //描述
 	CreateTime time.Time `json:"createTime" gorm:"column:createTime;autoCreateTime"` //创建time
-	UpdateTime time.Time `json:"updateTime" gorm:"column:updateTime;autoCreateTime"` //修改time
+	UpdateTime time.Time `json:"updateTime" gorm:"column:updateTime;default:(-)"`    //修改time
 	Roles      []Role    `gorm:"many2many:role_apis;"`                               //gorm结构体
 }
 
@@ -31,13 +31,8 @@ func (a *Api) Add() error {
 func (a *Api) Deleted(id int64) error {
 	//启动事务
 	return mysqlDB.DB.Transaction(func(tx *gorm.DB) error {
-		// 清除 Api 与 Roles 的关联关系
-		err := tx.Model(&Api{Id: id}).Association("Roles").Clear()
-		if err != nil {
-			return err
-		}
 		// 删除 Api 记录
-		err = tx.Where("id = ?", id).Delete(&Api{}).Error
+		err := tx.Where("id = ?", id).Delete(&Api{}).Error
 		if err != nil {
 			return err
 		}
@@ -55,7 +50,7 @@ func (a *Api) Update() error {
 	return nil
 }
 
-func (a *Api) GetAll(name string, skip, limit int, startTime, endTime string) ([]Api, error) {
+func (a *Api) GetAll(skip, limit int, startTime, endTime string) ([]Api, error) {
 	tx := mysqlDB.DB
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
@@ -71,11 +66,14 @@ func (a *Api) GetAll(name string, skip, limit int, startTime, endTime string) ([
 
 // 查看是否存在
 func (a *Api) IsExist() (bool, error) {
-	//查重
+	// 查重
 	var api Api
-	err := mysqlDB.DB.Model(&Api{}).Where("name = ? AND url = ?", a.Name, a.Url).Take(&api).Error
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	err := mysqlDB.DB.Model(&Api{}).Where("name = ? OR url = ?", a.Name, a.Url).Take(&api).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil // 记录不存在
+	}
+	if err != nil {
 		return false, err // 其他错误
 	}
-	return true, nil // 存在
+	return true, nil // 记录存在
 }

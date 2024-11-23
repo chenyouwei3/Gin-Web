@@ -31,6 +31,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 		//将用户信息储存再上下文
 		//c.Set("user", claims.Issuer)
+
 		//重新存入redis
 		err = cacheRedis.RedisCache{}.SetValue(token, claims.Issuer, 60*60*48)
 		if err != nil {

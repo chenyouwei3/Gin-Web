@@ -22,6 +22,7 @@ func (b BaseController) SendResponse(c *gin.Context, httpResponseCode, CustomCod
 	})
 }
 
+// 成功
 func (b BaseController) SendSuccessResponse(c *gin.Context, data interface{}) {
 	b.SendResponse(c, http.StatusOK, Normal, ResponseMsg{
 		ZhCn: "请求成功",
@@ -29,6 +30,15 @@ func (b BaseController) SendSuccessResponse(c *gin.Context, data interface{}) {
 	}, data, nil)
 }
 
+// 自定义错误
+func (b BaseController) SendCustomResponse(c *gin.Context, ZhCn, EnUs string, err error) {
+	b.SendResponse(c, http.StatusOK, Normal, ResponseMsg{
+		ZhCn: ZhCn,
+		EnUs: EnUs,
+	}, nil, err)
+}
+
+// 参数错误
 func (b BaseController) SendParameterErrorResponse(c *gin.Context, err error) {
 	b.SendResponse(c, http.StatusBadRequest, ParameterError, ResponseMsg{
 		ZhCn: "参数错误",
@@ -36,6 +46,7 @@ func (b BaseController) SendParameterErrorResponse(c *gin.Context, err error) {
 	}, nil, err)
 }
 
+// 方法错误
 func (b BaseController) SendNotFoundResponse(c *gin.Context) {
 	b.SendResponse(c, http.StatusNotFound, NotFound, ResponseMsg{
 		ZhCn: "方法不允许",
@@ -43,9 +54,18 @@ func (b BaseController) SendNotFoundResponse(c *gin.Context) {
 	}, nil, nil)
 }
 
+// 权限问题
 func (b BaseController) SendUnAuthResponse(c *gin.Context) {
 	b.SendResponse(c, http.StatusUnauthorized, Unauthorized, ResponseMsg{
 		ZhCn: "身份信息不通过",
 		EnUs: "Identity information not passed",
 	}, nil, nil)
+}
+
+// 重复问题
+func (b BaseController) SendDataDuplicationResponse(c *gin.Context, err error) {
+	b.SendResponse(c, http.StatusUnauthorized, Unauthorized, ResponseMsg{
+		ZhCn: "数据重复",
+		EnUs: "Data duplication",
+	}, nil, err)
 }

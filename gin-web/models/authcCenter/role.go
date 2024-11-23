@@ -13,8 +13,8 @@ type Role struct {
 	Name       string    `json:"name" gorm:"column:name;type:varchar(20);not null"`  //用户名
 	Desc       string    `json:"desc" gorm:"column:desc;type:varchar(20)"`           //描述
 	CreateTime time.Time `json:"createTime" gorm:"column:createTime;autoCreateTime"` //创建time
-	UpdateTime time.Time `json:"updateTime" gorm:"column:updateTime;autoCreateTime"` //修改time
-	User       []User    `gorm:"many2many:user_roles"`
+	UpdateTime time.Time `json:"updateTime" gorm:"column:updateTime;default:NULL"`   //修改time
+	Users      []User    `gorm:"many2many:user_roles"`
 	Apis       []Api     `gorm:"many2many:role_apis;"`
 }
 
@@ -62,17 +62,38 @@ func (r *Role) Deleted(id int64) error {
 	})
 }
 
-// 修改Role
-func (r *Role) Update(role Role) error {
-	//修改参数
-	role.UpdateTime = time.Now()
-	if err := mysqlDB.DB.Save(&role).Error; err != nil {
-		return err
-	}
-	return nil
+func (r *Role) Update(addApis, deletedApis []int) error {
+	r.UpdateTime = time.Now()
+	err := mysqlDB.DB.Transaction(func(tx *gorm.DB) error {
+		// 更新角色基本信息
+		if err := tx.Model(r).Save(r).Error; err != nil {
+			return fmt.Errorf("更新角色信息失败: %w", err)
+		}
+		// 删除关联
+		if len(deletedApis) > 0 {
+			if err := tx.Table("role_apis").Where("role_id = ? AND api_id IN ?", r.Id, deletedApis).Delete(nil).Error; err != nil {
+				return fmt.Errorf("删除关联失败: %w", err)
+			}
+		}
+		// 添加关联
+		if len(addApis) > 0 {
+			records := make([]map[string]interface{}, len(addApis))
+			for i, apiID := range addApis {
+				records[i] = map[string]interface{}{
+					"role_id": r.Id,
+					"api_id":  apiID,
+				}
+			}
+			if err := tx.Table("role_apis").Create(records).Error; err != nil {
+				return fmt.Errorf("添加关联失败: %w", err)
+			}
+		}
+		return nil
+	})
+	return err
 }
 
-func (r *Role) GetAll(name string, skip, limit int, startTime, endTime string) ([]Role, error) {
+func (r *Role) GetAll(skip, limit int, startTime, endTime string) ([]Role, error) {
 	tx := mysqlDB.DB
 	if startTime != "" && endTime != "" {
 		tx = tx.Where("createTime >= ? and createTime <=?", startTime, endTime)
@@ -90,11 +111,11 @@ func (r *Role) IsExist() (bool, error) {
 	//查重
 	var role Role
 	err := mysqlDB.DB.Model(&Role{}).Select("name").Where("name = ?", r.Name).Take(&role).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil // 记录不存在
+	}
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return false, nil // 不存在
-		}
 		return false, err // 其他错误
 	}
-	return true, nil // 存在
+	return true, nil // 记录存在
 }

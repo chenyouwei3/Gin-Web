@@ -45,7 +45,6 @@ func OperationLog(target string, targets []string) gin.HandlerFunc {
 				operationLog.Body, operationLog.Query = "***敏感信息已脱敏***", "***敏感信息已脱敏***"
 			}
 		}
-		//记录
 		//可以根据需求自行修改
 		go func() {
 			err = mysql.DB.Create(&operationLog).Error
