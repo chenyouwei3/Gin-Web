@@ -3,9 +3,9 @@ package middleware
 import (
 	"gin-web/initialize/mysql"
 	"gin-web/initialize/runLog"
+	"gin-web/models"
 	"github.com/gin-gonic/gin"
 	"io"
-	"public/models"
 	"strings"
 	"time"
 )
@@ -16,20 +16,23 @@ import (
 
 func OperationLog(target string, targets []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		//请求链路
+		linkStartTime := time.Now() // 记录请求开始时间
+		c.Next()
+		linkEndTime := time.Now()                           // 记录请求结束时间
+		costTime := linkEndTime.Sub(linkStartTime).String() // 计算请求处理时间
+		//响应区间
 		Path, startTime := c.Request.URL.Path, time.Now()
 		if !strings.HasPrefix(Path, target) || c.Request.Method == "GET" { //不存在的api不记录且GET方法不记录
-			c.Next()
-		}
-		claims, err := ParseToken(c.Request.Header.Get("Authorization"))
-		if err != nil {
-			runLog.ZapLog.Info("no Authorization")
+			return
 		}
 		body, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			runLog.ZapLog.Info("JSON deserialization failed")
 		}
+		username, _ := c.Get("user")
 		operationLog := models.OperationLog{
-			Username:  claims.Issuer,
+			Username:  username.(string),
 			Ip:        c.ClientIP(),
 			Method:    c.Request.Method,
 			Status:    c.Writer.Status(),
@@ -38,6 +41,7 @@ func OperationLog(target string, targets []string) gin.HandlerFunc {
 			Path:      Path,
 			StartTime: startTime,
 			UserAgent: c.Request.UserAgent(),
+			CostTime:  costTime,
 		}
 		//脱敏处理
 		for _, target := range targets {
@@ -52,6 +56,5 @@ func OperationLog(target string, targets []string) gin.HandlerFunc {
 				runLog.ZapLog.Error(err.Error())
 			}
 		}()
-		c.Next()
 	}
 }

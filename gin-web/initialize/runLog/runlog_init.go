@@ -1,6 +1,7 @@
 package runLog
 
 import (
+	"fmt"
 	conf "gin-web/initialize/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -21,6 +22,7 @@ func InitRunLog() error {
 	}
 	// 创建文件写入器
 	workDir, _ := os.Getwd()
+	fmt.Println("test2", workDir)
 	file, err := os.Create(workDir + "/logs/app.log") // 指定日志文件
 	if err != nil {
 		return err

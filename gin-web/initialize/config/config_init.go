@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -9,6 +10,7 @@ func InitConfig() error {
 	workDir, _ := os.Getwd()
 	viper.SetConfigName("config")
 	viper.SetConfigType("yml")
+	fmt.Println("test1", workDir)
 	viper.AddConfigPath(workDir + "/initialize/config")
 	err := viper.ReadInConfig()
 	if err != nil {

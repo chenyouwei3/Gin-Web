@@ -16,7 +16,13 @@ var DB *gorm.DB
 func InitDB() error {
 	confDB := config.Conf.MySQL
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=true",
-		confDB.UserName, confDB.Password, confDB.Host, confDB.Port, confDB.Database, confDB.Charset)
+		confDB.UserName,
+		confDB.Password,
+		confDB.Host,
+		confDB.Port,
+		confDB.Database,
+		confDB.Charset,
+	)
 	var ormLogger logger.Interface
 	if gin.Mode() == "debug" {
 		ormLogger = logger.Default.LogMode(logger.Info)

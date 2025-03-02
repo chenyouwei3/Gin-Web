@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"gin-web/utils/extendController"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -10,16 +11,21 @@ import (
 var LimitQueue map[string][]int64
 var ok bool
 
-func LimiterWindow(c *gin.Context, timeWindow int64, count uint) gin.HandlerFunc {
+// 流是限制单个用户在特定时间窗口内的请求数量
+// timeWindow(时间窗口) count(请求次数限制)
+func LimiterWindow(timeWindow int64, count uint) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ip := c.ClientIP()
-		key := "limit:" + ip
+		key := "limit:" + ip //可以根据自己的请求更改
 		if !LimitFreqSingle(key, count, timeWindow) {
-			c.JSON(200, gin.H{
-				"code": http.StatusTooManyRequests,
-				"msg":  "当前服务器过载,请稍后重试",
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, extendController.Response{
+				Code: http.StatusTooManyRequests,
+				Message: extendController.ResponseMsg{
+					"当前服务器过载,请稍后重试",
+					"The current server is overloaded, please try again later",
+				},
+				Data: nil,
 			})
-			c.Abort()
 			return
 		}
 		c.Next()
@@ -27,6 +33,7 @@ func LimiterWindow(c *gin.Context, timeWindow int64, count uint) gin.HandlerFunc
 }
 
 func LimitFreqSingle(queueName string, count uint, timeWindow int64) bool {
+	//初始化
 	currTime := time.Now().Unix() //获取当前时间
 	if LimitQueue == nil {        //检查全局变量 初始化
 		LimitQueue = make(map[string][]int64)
@@ -34,6 +41,7 @@ func LimitFreqSingle(queueName string, count uint, timeWindow int64) bool {
 	if _, ok := LimitQueue[queueName]; !ok { //没东西的话
 		LimitQueue[queueName] = make([]int64, 0)
 	}
+
 	//小于设定的最大数
 	if uint(len(LimitQueue[queueName])) < count {
 		LimitQueue[queueName] = append(LimitQueue[queueName], currTime)

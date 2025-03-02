@@ -5,47 +5,57 @@ import (
 	"gin-web/initialize/config"
 	mysqlDB "gin-web/initialize/mysql"
 	"gin-web/initialize/runLog"
+	"gin-web/models"
 	"gin-web/models/authcCenter"
 	"gin-web/routers"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
 	_ "net/http/pprof"
 )
 
 func init() {
-	err := config.InitConfig() //初始化配置文件
+	//初始化配置文件
+	err := config.InitConfig()
 	if err != nil {
 		panic(err)
 	}
-	if config.Conf.APP.Mode == "debug" { //设置运行模式
+	//设置运行模式
+	if config.Conf.APP.Mode == "debug" {
 		gin.SetMode(gin.DebugMode)
 	}
+	//设置运行日志
 	err = runLog.InitRunLog()
 	if err != nil {
 		panic(err)
 	}
-	err = mysqlDB.InitDB() //初始化mysql数据库
+	//初始化mysql数据库
+	err = mysqlDB.InitDB()
 	if err != nil {
 		panic(err)
 	}
-	err = cacheRedis.InitRedis() //初始化缓存redis
+	//初始化缓存redis
+	err = cacheRedis.InitRedis()
 	if err != nil {
 		panic(err)
 	}
-	err = mysqlDB.DB.AutoMigrate( //数据库迁移
+	//数据库迁移
+	err = mysqlDB.DB.AutoMigrate(
 		&authcCenter.User{},
 		&authcCenter.Role{},
 		&authcCenter.Api{},
+		&models.OperationLog{},
 	)
 	if err != nil {
 		panic(err)
 	}
+	go func() {
+		log.Println(http.ListenAndServe("127.0.0.1:6066", nil))
+	}()
 }
 
 func main() {
 	//pprof检测程序性能
-	//go func() {
-	//	log.Println(http.ListenAndServe("127.0.0.1:6066", nil))
-	//}()
-	routers.RouterServerRun()
+	routers.RouterServerRun() //http服务
 
 }

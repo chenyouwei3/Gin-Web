@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"gin-web/utils/extendController"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 // LeakBucket 定义了漏桶的结构
@@ -45,26 +45,30 @@ func (b *LeakBucket) Allow() bool {
 		}
 		b.lastLeakTime = now // 更新上次漏出的时间
 	}
-
 	// 如果漏桶还有剩余容量，允许请求进入
 	if b.remaining > 0 {
 		b.remaining-- // 减少剩余容量
 		return true
 	}
-
 	// 否则拒绝请求
 	return false
 }
 
 // LeakBucketMiddleware 创建一个 Gin 中间件，用来限流
+// capacity(可以存储多少个请求) fillInterval(每多少ms释放一个请求)
 func LeakBucketMiddleware(capacity int, fillInterval time.Duration) gin.HandlerFunc {
 	bucket := NewLeakBucket(capacity, fillInterval)
 	return func(c *gin.Context) {
 		// 判断请求是否被允许
 		if !bucket.Allow() {
 			// 如果请求被拒绝，返回 429 状态码和错误信息
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
-				"message": "Too many requests, please try again later.",
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, extendController.Response{
+				Code: http.StatusTooManyRequests,
+				Message: extendController.ResponseMsg{
+					"当前服务器过载,请稍后重试",
+					"The current server is overloaded, please try again later",
+				},
+				Data: nil,
 			})
 			return
 		}

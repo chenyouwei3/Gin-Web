@@ -13,4 +13,5 @@ type OperationLog struct {
 	Path      string    `json:"path" gorm:"column:path;type:varchar(100);not null;comment:'访问路径'"`         // 访问路径
 	StartTime time.Time `json:"startTime" gorm:"column:start_time;type:datetime(3);comment:'发起时间'"`        // 发起时间
 	UserAgent string    `json:"userAgent" gorm:"column:user_agent;type:varchar(50);comment:'浏览器标识'"`       // 浏览器标识
+	CostTime  string    `json:"costTime" gorm:"column:cost_time;type:varchar(20);comment:'花费时间'"`          // 花费时间
 }
