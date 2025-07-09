@@ -1,0 +1,16 @@
+APP:
+  name: exchange   #服务名称
+  port: 8080
+  mode: run   #运行模式
+
+MySQL:
+  driverName: mysql
+  host: 106.12.19.43
+  port: 6446
+  database: web_bucked
+  username: root
+  password: root
+  charset: utf8mb4
+  setMaxIdleConns:  20
+  setMaxOpenConns:  100
+  setConnMaxLifetime: 30s
