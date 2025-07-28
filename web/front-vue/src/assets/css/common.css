@@ -1,0 +1,21 @@
+.page-container {
+  padding: 24px;
+}
+
+/* 搜索表单 */
+.search-form {
+  margin-bottom: 24px;
+}
+
+/* 操作栏 */
+.operation-bar {
+  margin-bottom: 16px;
+}
+
+/* 危险操作链接 */
+.danger-link {
+  color: #ff4d4f;
+}
+.danger-link:hover {
+  color: #ff7875;
+}

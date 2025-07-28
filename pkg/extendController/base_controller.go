@@ -9,15 +9,15 @@ import (
 )
 
 type BaseController struct {
-	runLog *zap.Logger
+	RunLog *zap.Logger
 }
 
 func (b *BaseController) SendResponse(c *gin.Context, httpResponseCode, CustomCode int, msg ResponseMsg, data interface{}, err error) {
 	if err != nil {
 		msg.EnUs = fmt.Sprintf("%s : %v", msg.EnUs, err)
-		b.runLog.Error(msg.ZhCn + "/|^_^|/" + msg.EnUs) //定义日志输出格式
+		b.RunLog.Error(msg.ZhCn + "/|^_^|/" + msg.EnUs) //定义日志输出格式
 	} else {
-		b.runLog.Info(msg.ZhCn + "/|^_^|/" + msg.EnUs) //定义日志输出格式
+		b.RunLog.Info(msg.ZhCn + "/|^_^|/" + msg.EnUs) //定义日志输出格式
 	}
 
 	c.JSON(httpResponseCode, Response{
@@ -67,6 +67,11 @@ func (b *BaseController) SendMethodNotAllowedResponse(c *gin.Context) {
 		ZhCn: "方法不允许",
 		EnUs: "Method not allow",
 	}, nil, nil)
+}
+
+// 鉴权失败 401 Unauthorized
+func (b *BaseController) SendUnauthorizedResponse(c *gin.Context, err error) {
+	b.SendResponse(c, http.StatusUnauthorized, 4010, ErrorCodeMap[4010], nil, err)
 }
 
 // 请求过多429

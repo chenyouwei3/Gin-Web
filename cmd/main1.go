@@ -5,9 +5,11 @@ import (
 	mysqlDB "gin-web/init/mysql"
 	"gin-web/init/runLog"
 	"gin-web/internal/manage/middleware"
-	"github.com/gin-gonic/gin"
+	"gin-web/internal/manage/routers"
 	"log"
 	_ "net/http/pprof"
+
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -32,10 +34,6 @@ func init() {
 		panic(err)
 	}
 
-	//if err = casbinConf.InitCasbin(); err != nil {
-	//	log.Println("CasBin初始化失败", err)
-	//	panic(err)
-	//}
 	log.Println("系统初始化加载完毕")
 }
 
@@ -52,4 +50,7 @@ func main() {
 			log.Println("运行日志刷出失败:", err)
 		}
 	}()
+	if err := routers.NewRouter().Run(":" + conf.SystemConfig.APP.Port); err != nil {
+		panic(err)
+	}
 }
