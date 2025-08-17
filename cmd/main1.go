@@ -33,7 +33,6 @@ func init() {
 		log.Println("MySql初始化失败", err)
 		panic(err)
 	}
-
 	log.Println("系统初始化加载完毕")
 }
 

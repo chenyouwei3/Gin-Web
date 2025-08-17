@@ -49,7 +49,6 @@ export function roleList(parameter){//查询角色列表
     });
 }
 
-
 //权限中心-user
 export function userList(parameter){//查询用户列表
     const queryString = new URLSearchParams(parameter).toString(); 
@@ -60,7 +59,7 @@ export function userList(parameter){//查询用户列表
 }
 export function userRemove (parameter) {//删除用户
     return request({
-        url: "/user/remove",
+        url: "/user/delete",
         method: 'post',
         data: parameter
     })
@@ -81,7 +80,7 @@ export function userEdit(parameter){//修改用户
     })
 }
 
-export function getUserByRoles(roleId) {  //查询用户的角色
+export function userByRolesList(roleId) {  //查询用户的角色
     return request({
         url: `/user/getUserByRoles?id=${roleId}`,
         method: 'get'
@@ -89,7 +88,7 @@ export function getUserByRoles(roleId) {  //查询用户的角色
 }
 
 //日志中心
-export function getOperationLog(parameter){
+export function logByOperationList(parameter){
     const queryString = new URLSearchParams(parameter).toString();    // 将参数转换为查询字符串
     return request({
         url: `/log/operation/getList?${queryString}`,

@@ -6,7 +6,11 @@ import (
 
 // 查询角色列表
 type RoleGetListReq struct {
-	Name string `json:"name"`
+	Name      string `json:"name"`
+	CurrPage  string `json:"currPage"`
+	PageSize  string `json:"pageSize"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
 }
 
 type RoleGetListResp struct {

@@ -29,28 +29,48 @@ const errorHandler = (error) => {
 };
 
 // 请求拦截器
-request.interceptors.request.use(
-  (config) => {
-    const token = storage.get('Access-Token'); // 从 localStorage 中获取 token
-    if (token) {
-      config.headers['Access-Token'] = token; // 如果 token 存在，添加到请求头中
-    }
-    return config; // 返回配置
+request.interceptors.request.use((config) => {
+  const access_token = storage.get('access_token'); 
+  const refresh_token = storage.get('refresh_token'); 
+  if (access_token) {
+    config.headers['access_token'] = access_token; 
+    config.headers['refresh_token'] = refresh_token; 
+  }
+    return config; 
   },
-  errorHandler // 如果请求发生错误，调用 errorHandler
+  errorHandler 
 );
 
 // 响应拦截器
+// 响应拦截器（加入防重处理）
+let lastMessageTime = 0;
+let lastMessageContent = '';
+
 request.interceptors.response.use(
   (response) => {
-   /*  if (response.data.message['en-US'] == 'success')  {
-      msgSuccess(response.data.message['zh-CN']);
-    } else {
-      msgError(response.data.message['zh-CN']);
-    } */
-    return response; // 如果没有 success 字段，直接返回响应
+    const msgEn = response.data.message?.['en-US'];
+    const msgZh = response.data.message?.['zh-CN'];
+    const respCode=response.data.code
+    // 只有在非登录接口时才自动显示消息
+    if  (respCode) {
+      const now = Date.now();
+      // 1秒内相同内容不重复提示
+      if (now - lastMessageTime < 1000 && respCode === lastMessageContent) {
+        // 重复消息，跳过
+      } else {
+        if (msgEn === 'success') {
+          msgSuccess(msgZh);
+        } else {
+          msgError(msgZh);
+        }
+        lastMessageContent = respCode;
+        lastMessageTime = now;
+      }
+    }
+
+    return response.data;
   },
-  errorHandler // 如果响应发生错误，调用 errorHandler
+  errorHandler
 );
 
 // 插件安装器

@@ -2,10 +2,11 @@ package runLog
 
 import (
 	conf "gin-web/init/config"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var ZapLog *zap.Logger
@@ -43,13 +44,13 @@ func InitRunLog(conf conf.Config) error {
 		core = zapcore.NewCore(
 			zapcore.NewJSONEncoder(config),
 			writeSyncer,
-			zapcore.DebugLevel, // 开发环境建议是 Debug
+			zapcore.InfoLevel, // 会输出Info/Warn/Error
 		)
 	} else {
 		core = zapcore.NewCore(
 			zapcore.NewJSONEncoder(config),
 			writeSyncer,
-			zapcore.InfoLevel,
+			zapcore.WarnLevel, //会输出Warn/Error
 		)
 	}
 	ZapLog = zap.New(core)

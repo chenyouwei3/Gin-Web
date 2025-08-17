@@ -6,8 +6,12 @@ import (
 
 // 查询用户列表
 type UserGetListReq struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	CurrPage  string `json:"currPage"`
+	PageSize  string `json:"pageSize"`
+	StartTime string `json:"startTime"`
+	EndTime   string `json:"endTime"`
 }
 
 type UserGetListResp struct {
@@ -30,12 +34,13 @@ type UserInsertReq struct {
 
 // 删除用户
 type UserDeleteReq struct {
-	Id int `json:"id" binding:"required"`
+	Id int64 `json:"id" binding:"required"`
 }
 
 // 更新用户
 type UserUpdateReq struct {
 	User struct {
+		Id        int64  `json:"id" binding:"required"`
 		Name      string `json:"name" binding:"required,min=2,max=35"` /// 名字必填，2~35长度
 		Email     string `json:"email" binding:"required,email"`       // 必填且为邮箱格式
 		Account   string `json:"account"`                              // 账号必填

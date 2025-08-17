@@ -21,7 +21,7 @@ const routes = [
 		meta:{
 			title:"账号登录"
 		},
-		component: () => import("@/views/login.vue")
+		component: () => import("@/views/default/login.vue")
 	},
 	/*---------------------功能页面---------------------*/
 

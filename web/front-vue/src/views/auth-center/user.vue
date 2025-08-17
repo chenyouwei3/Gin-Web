@@ -66,7 +66,7 @@
               </a-tag>
             </template>
             <!-- 时间列渲染 -->
-            <template v-else-if="column.dataIndex === 'create_time'||column.dataIndex==='update_time'">
+            <template v-else-if="column.dataIndex === 'created_at'||column.dataIndex==='updated_at'">
               {{ formatDate(record[column.dataIndex]) }}
             </template>
           </template>
@@ -108,8 +108,7 @@
 <script setup>
 // 导入必要的组件和工具
 import { ref, reactive, onMounted } from 'vue'
-import {  userEdit, getUserByRoles, roleList } from '@/tools/api'
-import { msgSuccess, msgError } from '@/tools/message'
+import {  userEdit, userByRolesList, roleList } from '@/tools/api'
 import NavigationBar from '@/components/NavigationBar.vue'
 import { useTable } from '@/tools/page/common'
 import {formatDate,newTimeRangeHandler}from '@/tools/page/time'
@@ -153,7 +152,7 @@ const showEditModal = async (record) => {
     
   try {
     // 获取用户已有的角色
-    const res = await getUserByRoles(record.id)
+    const res = await userByRolesList(record.id)
     if(res?.data?.code === 2000) {
       formData.roleIds = res.data.data.map(role => String(role.id))
       // 保存原始角色列表用于比较
@@ -163,7 +162,6 @@ const showEditModal = async (record) => {
       formData.originalRoleIds = []
     }
   }catch (error) {
-    console.error('获取用户角色失败:', error)
     formData.roleIds = []
     formData.originalRoleIds = []
   }
@@ -187,12 +185,10 @@ const handleModalOk = async () => {
       deletedRoles: deletedRoles.map(id => Number(id))
     }
     await userEdit(params)
-    msgSuccess('编辑成功')
     modalVisible.value = false
     fetchData()
   } catch (error) {
-    console.error('操作失败:', error)
-    msgError('操作失败')
+  
   } finally {
     modalLoading.value = false
   }
@@ -201,8 +197,8 @@ const handleModalOk = async () => {
 const fetchRoleList = async () => {
   try {
     const res = await roleList({ currPage: 1, pageSize: 1000 })
-    if (res?.data?.code === 2000 && res?.data?.data?.roles) {
-      roleListData.value = res.data.data.roles.map(role => ({
+    if (res?.code === 2000 && res?.data?.roles) {
+      roleListData.value = res.data.roles.map(role => ({
         key: String(role.id),
         title: role.name,
         description: role.desc,
@@ -221,24 +217,6 @@ onMounted(() => {
 })
 </script>
   
-  <style scoped>
-  /* 容器样式 */
-  .user-container {
-    padding: 24px;
-  }
-  /* 搜索表单样式 */
-  .search-form {
-    margin-bottom: 24px;
-  }
-  /* 操作按钮区域样式 */
-  .operation-bar {
-    margin-bottom: 16px;
-  }
-  /* 危险操作链接样式 */
-  .danger-link {
-    color: #ff4d4f;
-  }
-  .danger-link:hover {
-    color: #ff7875;
-  }
-  </style> 
+<style scoped>
+
+</style> 

@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 	mysqlDB "gin-web/init/mysql"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -56,7 +57,7 @@ func (u *User) GetList(skip, limit int, startTime, endTime string) ([]User, int6
 	subQuery = subQuery.Offset(skip).Limit(limit)
 	var resDB []User
 	if err := mysqlDB.DB.Model(&User{}).
-		//Select("id", "ip", "name", "url", "method", "desc", "created_at", "updated_at").
+		Select("user.id", "name", "email", "account", "avatarUrl", "created_at", "updated_at").
 		Joins("JOIN (?) AS tmp ON tmp.id = user.id", subQuery).
 		Order("created_at DESC").
 		Find(&resDB).Error; err != nil {
@@ -94,13 +95,15 @@ func (u *User) Insert(roleIds []int) error {
 		if err := tx.Create(u).Error; err != nil {
 			return err
 		}
-
+		if len(roleIds) == 0 {
+			return nil // 事务成功，无需关联角色
+		}
 		// 查询所有要绑定的角色
 		var roles []Role
 		if err := tx.Find(&roles, roleIds).Error; err != nil {
 			return err
 		}
-
+		fmt.Println(len(roles), len(roleIds))
 		// 确保数量匹配，防止有无效 ID
 		if len(roles) != len(roleIds) {
 			return fmt.Errorf("角色数量不匹配")
@@ -120,12 +123,7 @@ func (u *User) Update(addRoles, deletedRoles []int) error {
 	u.UpdateTime = time.Now()
 	err := mysqlDB.DB.Transaction(func(tx *gorm.DB) error {
 		//更新用户基本信息
-		if err := tx.Model(&User{}).Where("id = ?", u.ID).Select(
-			"Name",
-			"Email",
-			"Account",
-			"Password",
-			"AvatarUrl").Updates(u).Error; err != nil {
+		if err := tx.Model(&User{}).Where("id = ?", u.ID).Updates(u).Error; err != nil {
 			return fmt.Errorf("更新用户信息失败: %w", err)
 		}
 		// 删除关联

@@ -1,287 +1,300 @@
 <template>
-	<div class="not-found-page">
-		<!-- 顶部动画区域 -->
-		<div class="top-section">
-			<div class="clouds">
-				<div class="cloud cloud1"></div>
-				<div class="cloud cloud2"></div>
-				<div class="cloud cloud3"></div>
-				<div class="cloud cloud4"></div>
-			</div>
-			<div class="animation-container">
-				<img src="@/assets/logo.png" alt="logo" class="logo" />
-				<div class="title-container">
-					<div class="title-wrapper">
-						<h1 class="main-title">404</h1>
-						<div class="author-tag">
-							<span class="author-name">页面未找到</span>
-						</div>
-					</div>
-					<p class="sub-title">抱歉，您访问的页面不存在</p>
-				</div>
-			</div>
-		</div>
-
-		<!-- 中间内容区域 -->
-		<div class="middle-section">
-			<div class="not-found-content">
-				<div class="not-found-left">
-					<img src="@/assets/title.png" alt="title" class="title-image" />
-				</div>
-				<div class="not-found-divider"></div>
-				<div class="not-found-right">
-					<div class="not-found-message">
-						<p>您可能输入了错误的网址，或者该页面已被删除。</p>
-						<p>请检查您的输入，或返回首页继续浏览。</p>
-					</div>
-					<a-button 
-						type="primary" 
-						size="large" 
-						class="login-button" 
-						href="/"
-					>
-						返回首页
-					</a-button>
-				</div>
-			</div>
-		</div>
-
-		<!-- 底部信息区域 -->
-		<div class="bottom-section">
-			<div class="bottom-content">
-				<div class="register-link">
-					<a href="https://github.com/chenyouwei3" target="_blank">个人开发者作品</a>
-				</div>
-				<div class="footer-links">
-					<a href="/help-center">帮助中心</a>
-					<a href="/privacy-policy">隐私政策</a>
-					<a href="/terms-of-service">服务条款</a>
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="error-page">
+    <div class="error-container">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      
+      <h1 class="error-code">404</h1>
+      <h2 class="error-title">页面未找到</h2>
+      <p class="error-description">
+        抱歉，您访问的页面不存在或已被移除。
+      </p>
+      
+      <div class="error-actions">
+        <button @click="goBack" class="btn-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"></path>
+          </svg>
+          返回上一页
+        </button>
+        
+        <button @click="goHome" class="btn-home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9,22 9,12 15,12 15,22"></polyline>
+          </svg>
+          返回首页
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-// Vue 3 的 script setup 语法
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.go(-1)
+  } else {
+    router.push('/')
+  }
+}
+
+const goHome = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped>
-.not-found-page {
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	background-color: #f0f2f5;
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fb7299 0%, #fc8bab 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  overflow: hidden;
 }
 
-/* 顶部动画区域样式 */
-.top-section {
-	position: relative;
-	height: 300px;
-	background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
-	overflow: hidden;
-}
-
-.clouds {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-
-.cloud {
-	position: absolute;
-	background: rgba(255, 255, 255, 0.8);
-	border-radius: 50%;
-	animation: float 15s infinite linear;
-}
-
-.cloud1 {
-	width: 100px;
-	height: 60px;
-	top: 20%;
-	left: 10%;
-	animation-duration: 20s;
-}
-
-.cloud2 {
-	width: 150px;
-	height: 90px;
-	top: 40%;
-	left: 30%;
-	animation-duration: 25s;
-}
-
-.cloud3 {
-	width: 120px;
-	height: 70px;
-	top: 60%;
-	left: 50%;
-	animation-duration: 18s;
-}
-
-.cloud4 {
-	width: 80px;
-	height: 50px;
-	top: 30%;
-	left: 70%;
-	animation-duration: 22s;
+/* Bilibili 风格的装饰元素 */
+.error-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: float 20s linear infinite;
 }
 
 @keyframes float {
-	0% {
-		transform: translateX(-100%);
-	}
-	100% {
-		transform: translateX(100vw);
-	}
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-20px, -20px);
+  }
 }
 
-.animation-container {
-	position: relative;
-	z-index: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding-top: 40px;
+.error-container {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(251, 114, 153, 0.3);
+  max-width: 500px;
+  width: 90%;
+  border: 2px solid #fb7299;
+  position: relative;
+  backdrop-filter: blur(10px);
 }
 
-.logo {
-	width: 80px;
-	height: 80px;
-	margin-bottom: 20px;
+.error-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #fb7299, #fc8bab, #fb7299);
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0.3;
 }
 
-.title-container {
-	text-align: center;
-	color: white;
+.error-icon {
+  margin-bottom: 2rem;
 }
 
-.main-title {
-	font-size: 48px;
-	font-weight: bold;
-	margin: 0;
+.error-icon svg {
+  width: 80px;
+  height: 80px;
+  color: #fb7299;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(251, 114, 153, 0.3));
 }
 
-.author-tag {
-	margin-top: 10px;
-	font-size: 16px;
+.error-code {
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: #fb7299;
+  margin: 0 0 0.5rem 0;
+  line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: 0 2px 4px rgba(251, 114, 153, 0.3);
 }
 
-.author-name {
-	color: rgba(255, 255, 255, 0.8);
+.error-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 1rem 0;
 }
 
-.sub-title {
-	margin-top: 10px;
-	font-size: 18px;
-	color: rgba(255, 255, 255, 0.8);
+.error-description {
+  font-size: 1rem;
+  color: #718096;
+  margin: 0 0 2.5rem 0;
+  line-height: 1.6;
 }
 
-/* 中间内容区域样式 */
-.middle-section {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 40px 20px;
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.not-found-content {
-	display: flex;
-	background-color: white;
-	border-radius: 10px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	width: 800px;
-	min-height: 400px;
+.btn-back,
+.btn-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border: 2px solid #fb7299;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background: #ffffff;
+  color: #fb7299;
+  position: relative;
+  overflow: hidden;
 }
 
-.not-found-left {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 40px;
+.btn-back::before,
+.btn-home::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
 }
 
-.title-image {
-	max-width: 100%;
-	max-height: 300px;
+.btn-back:hover::before,
+.btn-home:hover::before {
+  left: 100%;
 }
 
-.not-found-divider {
-	width: 1px;
-	background-color: #f0f0f0;
-	margin: 40px 0;
+.btn-back:hover {
+  background: #fb7299;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 114, 153, 0.4);
 }
 
-.not-found-right {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	padding: 40px;
+.btn-home {
+  background: #fb7299;
+  color: #ffffff;
 }
 
-.not-found-message {
-	text-align: center;
-	margin-bottom: 30px;
+.btn-home:hover {
+  background: #e85a87;
+  border-color: #e85a87;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 114, 153, 0.4);
 }
 
-.not-found-message p {
-	color: #666;
-	font-size: 16px;
-	line-height: 1.6;
-	margin: 10px 0;
+.btn-back svg,
+.btn-home svg {
+  width: 16px;
+  height: 16px;
 }
 
-.login-button {
-	width: 100%;
-	height: 40px;
-	font-size: 16px;
-	background: linear-gradient(135deg, #1890ff 0%, #36cfc9 100%);
-	border: none;
-	border-radius: 4px;
-	transition: all 0.3s;
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .error-container {
+    padding: 2rem;
+    margin: 1rem;
+  }
+  
+  .error-code {
+    font-size: 3.5rem;
+  }
+  
+  .error-title {
+    font-size: 1.25rem;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+  
+  .btn-back,
+  .btn-home {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
-.login-button:hover {
-	opacity: 0.9;
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+/* 动画效果 */
+.error-container {
+  animation: fadeInUp 0.6s ease-out;
 }
 
-/* 底部信息区域样式 */
-.bottom-section {
-	background-color: white;
-	padding: 20px;
-	text-align: center;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.bottom-content {
-	max-width: 1200px;
-	margin: 0 auto;
+.error-icon {
+  animation: bounce 2s infinite;
 }
 
-.register-link {
-	color: #666;
-	margin-bottom: 10px;
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
 }
 
-.footer-links {
-	margin-top: 10px;
+/* Bilibili 风格的额外装饰 */
+.error-container::after {
+  content: '♪';
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.2rem;
+  color: #fb7299;
+  opacity: 0.6;
+  animation: sparkle 2s ease-in-out infinite;
 }
 
-.footer-links a {
-	color: #666;
-	margin: 0 10px;
-	text-decoration: none;
-}
-
-.footer-links a:hover {
-	color: #1890ff;
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 </style>
-  

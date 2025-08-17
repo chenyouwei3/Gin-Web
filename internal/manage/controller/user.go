@@ -20,11 +20,15 @@ type UserHandlerController struct {
 // 查询用户列表
 func (u *UserHandlerController) GetList() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var userReq types.UserGetListReq
-		userReq.Name, userReq.Email = c.Query("name"), c.Query("email")
-		currPage, pageSize := c.DefaultQuery("currPage", "1"), c.DefaultQuery("pageSize", "10")
-		startTime, endTime := c.Query("startTime"), c.Query("endTime")
-		skip, limit, err := pkg.GetPage(currPage, pageSize)
+		userReq := &types.UserGetListReq{
+			Name:      c.Query("name"),
+			Email:     c.Query("email"),
+			CurrPage:  c.DefaultQuery("currPage", "1"),
+			PageSize:  c.DefaultQuery("pageSize", "10"),
+			StartTime: c.Query("startTime"),
+			EndTime:   c.Query("endTime"),
+		}
+		skip, limit, err := pkg.GetPage(userReq.CurrPage, userReq.PageSize)
 		if err != nil {
 			u.SendCustomResponseByBacked(c, "分页失败", "Paging failed", err)
 			return
@@ -34,7 +38,7 @@ func (u *UserHandlerController) GetList() gin.HandlerFunc {
 			Name:  userReq.Name,
 			Email: userReq.Email,
 		}
-		resDB, total, err := userDB.GetList(skip, limit, startTime, endTime)
+		resDB, total, err := userDB.GetList(skip, limit, userReq.StartTime, userReq.EndTime)
 		if err != nil {
 			u.SendServerErrorResponse(c, 5130, err)
 			return
@@ -138,6 +142,7 @@ func (u *UserHandlerController) Update() gin.HandlerFunc {
 			return
 		}
 		userDB := models.User{
+			ID:        userReq.User.Id,
 			Name:      userReq.User.Name,
 			Email:     userReq.User.Email,
 			Account:   userReq.User.Account,
@@ -173,12 +178,13 @@ func (u *UserHandlerController) Login() gin.HandlerFunc {
 		}
 		//校验密码
 		bol := user.CheckPassword(tempUser.Password)
-		if bol == false {
-			u.SendCustomResponseByBacked(c, "密码错误", "Password error", err)
+		if !bol {
+			u.SendCustomResponseByBacked(c, "密码错误", "Password error", nil)
 			return
 		}
 		accessToken, refreshToken, err := jwt.GenerateToken(user.Name)
 		if err != nil {
+
 			u.SendCustomResponseByBacked(c, "生成token失败", "Failed to generate token", err)
 			return
 		}

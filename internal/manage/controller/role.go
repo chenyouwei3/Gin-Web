@@ -17,11 +17,14 @@ type RoleHandlerController struct {
 func (r *RoleHandlerController) GetList() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//接收参数
-		var roleReq types.RoleGetListReq
-		roleReq.Name = c.Query("name")
-		currPage, pageSize := c.DefaultQuery("currPage", "1"), c.DefaultQuery("pageSize", "10")
-		startTime, endTime := c.Query("startTime"), c.Query("endTime")
-		skip, limit, err := pkg.GetPage(currPage, pageSize)
+		roleReq := &types.RoleGetListReq{
+			Name:      c.Query("name"),
+			CurrPage:  c.DefaultQuery("currPage", "1"),
+			PageSize:  c.DefaultQuery("pageSize", "10"),
+			StartTime: c.Query("startTime"),
+			EndTime:   c.Query("endTime"),
+		}
+		skip, limit, err := pkg.GetPage(roleReq.CurrPage, roleReq.PageSize)
 		if err != nil {
 			r.SendCustomResponseByBacked(c, "分页失败", "Paging failed", err)
 			return
@@ -30,7 +33,7 @@ func (r *RoleHandlerController) GetList() gin.HandlerFunc {
 		roleDB := models.Role{
 			Name: roleReq.Name,
 		}
-		resDB, total, err := roleDB.GetList(skip, limit, startTime, endTime)
+		resDB, total, err := roleDB.GetList(skip, limit, roleReq.StartTime, roleReq.EndTime)
 		if err != nil {
 			r.SendServerErrorResponse(c, 5130, err)
 			return

@@ -155,8 +155,8 @@ const handleModalOk = async () => {
       await roleInsert(params)
       msgSuccess('新增成功')
     }
-    modalVisible.value = false
-    fetchData(pagination,searchForm)
+      modalVisible.value = false
+      fetchData(pagination,searchForm)
     }catch(error) {
       console.error('操作失败:', error)
     } finally {

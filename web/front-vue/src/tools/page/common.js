@@ -1,5 +1,5 @@
 import {ref, reactive } from 'vue'
-import { roleList, userList,roleRemove,userRemove} from '@/tools/api'
+import { roleList, userList,roleRemove,userRemove,logByOperationList} from '@/tools/api'
 export const useTable = ( dataKey = 'list') => {
   const loading = ref(false)//数据加载情况
   const tableData = ref([])//表格情况
@@ -28,15 +28,18 @@ export const useTable = ( dataKey = 'list') => {
   case "user":
     getFn=userList
     deleteFn=userRemove
-    deleteFn=userRemove
     keywordField = 'email'
     modalTitle.value='新增用户'
     break
+  case "logs":
+    getFn=logByOperationList
+    keywordField = 'account'
+    break 
   default:
 
   }
   const searchForm = reactive({
-  timeRange: [],
+    timeRange: [],
     startTime: '',
     endTime: '',
     name:'',
@@ -56,15 +59,14 @@ export const useTable = ( dataKey = 'list') => {
       }
 
       const res = await getFn(params)
-      if (res?.data?.code === 2000) {
-        tableData.value = res.data.data[dataKey] || []
-        pagination.total = res.data.data.total || 0
+      if (res?.code === 2000) {
+        tableData.value = res.data[dataKey] || []
+        pagination.total = res.data.total || 0
       } else {
         tableData.value = []
         pagination.total = 0
       }
     } catch (error) {
-      console.error('请求失败:', error)
       tableData.value = []
       pagination.total = 0
     } finally {
