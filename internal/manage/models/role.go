@@ -12,7 +12,7 @@ type Role struct {
 	CreateTime time.Time `json:"created_at" gorm:"column:created_at;autoCreateTime;index"`
 	UpdateTime time.Time `json:"updated_at" gorm:"column:updated_at;default:(-)"`
 	Name       string    `json:"name" gorm:"column:name;type:varchar(20);not null"`
-	Desc       string    `json:"desc" gorm:"column:desc;type:varchar(20)" `
+	Desc       string    `json:"desc" gorm:"column:desc;type:varchar(100)" `
 }
 
 func (Role) tableName() string {

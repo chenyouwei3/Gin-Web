@@ -29,14 +29,14 @@ func NewRouter() *gin.Engine {
 	logCH := &controller.LogHandlerController{
 		extendController.BaseController{RunLog: runLog.ZapLog},
 	}
-	r.POST("/login", userCH.Login())
-	r.Use(publicMiddleware.AuthMiddleware())
+	r.POST("/sign_in", userCH.Login())
+	r.POST("/sign_up", userCH.Insert())
 	r.GET("ping", func(c *gin.Context) {
 		c.JSON(200, "success")
 	})
+	r.Use(publicMiddleware.AuthMiddleware())
 	user := r.Group("user")
 	{
-		user.POST("/insert", userCH.Insert())
 		user.POST("/delete", userCH.Delete())
 		user.POST("/update", userCH.Update())
 		user.GET("/getList", userCH.GetList())
@@ -44,8 +44,8 @@ func NewRouter() *gin.Engine {
 	}
 	role := r.Group("role")
 	{
-		role.POST("/insert", roleCH.Insert()) //插入角色
-		role.POST("/delete", roleCH.Delete()) //删除角色给
+		role.POST("/insert", roleCH.Insert())
+		role.POST("/delete", roleCH.Delete())
 		role.POST("/update", roleCH.Update())
 		role.GET("/getList", roleCH.GetList())
 	}

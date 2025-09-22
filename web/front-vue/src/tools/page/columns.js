@@ -33,8 +33,15 @@ export const roleColumns = [
 ]
 
 export const roleRuleColumns = {
-    name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-    desc: [{ required: true, message: '请输入角色描述', trigger: 'blur' }],
+  name: [
+    { required: true, message: '请输入角色名称', trigger: 'blur' },
+    { min: 2, message: '角色名称至少为 2 个字符', trigger: 'blur' },
+    { max: 20, message: '角色名称不能超过 20 个字符', trigger: 'blur' }
+  ],
+  desc: [
+    { required: true, message: '请输入角色描述', trigger: 'blur' },
+    { max: 100, message: '角色描述不能超过 100 个字符', trigger: 'blur' }
+  ]
 }
 
 //用户界面
@@ -72,9 +79,13 @@ export const userColumns = [
 ]
 
 export const userRuleColumns = {
-   name: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+   name: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, message: '用户名至少需要 2 个字符', trigger: 'blur' },
+    { max: 35, message: '用户名不能超过 35 个字符', trigger: 'blur' }
+  ],
    email: [
-     { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
   ],
 }
@@ -94,7 +105,7 @@ export const logByOperationColumns=[// 表格列定义
   {
     title: '请求方法',
     dataIndex: 'method',
-    width: 80
+    width: 100
   },
   {
     title: '状态',
@@ -104,7 +115,7 @@ export const logByOperationColumns=[// 表格列定义
   {
     title: '请求路径',
     dataIndex: 'path',
-    width: 100,
+    width: 150,
   },
   {
     title: '耗时',

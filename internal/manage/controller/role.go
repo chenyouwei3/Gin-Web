@@ -26,7 +26,7 @@ func (r *RoleHandlerController) GetList() gin.HandlerFunc {
 		}
 		skip, limit, err := pkg.GetPage(roleReq.CurrPage, roleReq.PageSize)
 		if err != nil {
-			r.SendCustomResponseByBacked(c, "分页失败", "Paging failed", err)
+			r.SendServerErrorResponse(c, 5131, err)
 			return
 		}
 		//DB操作

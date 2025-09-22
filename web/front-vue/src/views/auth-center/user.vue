@@ -108,7 +108,7 @@
 <script setup>
 // 导入必要的组件和工具
 import { ref, reactive, onMounted } from 'vue'
-import {  userEdit, userByRolesList, roleList } from '@/tools/api'
+import { userEdit, userByRolesList, roleList } from '@/tools/api'
 import NavigationBar from '@/components/NavigationBar.vue'
 import { useTable } from '@/tools/page/common'
 import {formatDate,newTimeRangeHandler}from '@/tools/page/time'
@@ -153,8 +153,8 @@ const showEditModal = async (record) => {
   try {
     // 获取用户已有的角色
     const res = await userByRolesList(record.id)
-    if(res?.data?.code === 2000) {
-      formData.roleIds = res.data.data.map(role => String(role.id))
+    if (res?.code === 2000) {
+      formData.roleIds = res.data.map(role => String(role.id))
       // 保存原始角色列表用于比较
       formData.originalRoleIds = [...formData.roleIds]
     }else {
@@ -188,7 +188,7 @@ const handleModalOk = async () => {
     modalVisible.value = false
     fetchData()
   } catch (error) {
-  
+    console.error('操作失败:', error)
   } finally {
     modalLoading.value = false
   }
@@ -204,10 +204,10 @@ const fetchRoleList = async () => {
         description: role.desc,
       }))
     } else {
-      console.error('获取角色列表失败: 数据结构不正确', res)
+      console.error('操作失败')
     }
   } catch (error) {
-    console.error('获取角色列表失败:', error)
+    console.error('操作失败:', error)
   }
 } 
 /*[默认函数]*/  

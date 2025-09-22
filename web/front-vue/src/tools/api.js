@@ -3,7 +3,7 @@ import { axios as request } from './request';
 /*----------------------------------权限中心---------------------------------*/
 export function login(parameter){
     return request({
-        url: "/login",
+        url: "/sign_in",
         method: 'post',
         data:parameter
     })
@@ -11,7 +11,7 @@ export function login(parameter){
 
 export function register(parameter){
     return request({
-        url: "/user/insert",
+        url: "/sign_up",
         method: 'post',
         data:parameter
     })

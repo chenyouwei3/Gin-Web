@@ -54,8 +54,12 @@
       </div>
       <template #overlay>
         <a-menu>
+          <a-menu-item key="logout" @click="handleNavigation('personal')">
+            <template #icon><ProfileOutlined /></template>
+            个人信息
+          </a-menu-item>
           <a-menu-item key="logout" @click="handleLogout">
-            <template #icon><logout-outlined /></template>
+            <template #icon><LogoutOutlined /></template>
             退出登录
           </a-menu-item>
         </a-menu>
@@ -66,7 +70,16 @@
 
 <script setup>
 import { ref } from 'vue'
-import {   CloudOutlined,   BarChartOutlined,   DownOutlined,   LogoutOutlined,  SettingOutlined,  ApiOutlined, TeamOutlined, UserOutlined, FileTextOutlined,  MonitorOutlined,  HistoryOutlined} from '@ant-design/icons-vue'
+import { 
+  CloudOutlined,
+  ProfileOutlined,
+  DownOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+  FileTextOutlined,
+  HistoryOutlined} from '@ant-design/icons-vue'
 import storage from 'store'
 import { useRouter } from 'vue-router'
 
@@ -80,7 +93,7 @@ const handleNavigation = (route) => {
 const handleLogout = () => {
   storage.remove('User-Info')
   storage.remove('Access-Token')
-  router.push('/login')
+  handleNavigation('login')
 }
 
 </script>

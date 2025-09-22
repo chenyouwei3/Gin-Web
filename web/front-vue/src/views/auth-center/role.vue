@@ -101,7 +101,6 @@
 import {reactive, onMounted } from 'vue'
 import NavigationBar from '@/components/NavigationBar.vue'
 import {roleInsert, roleEdit} from '@/tools/api'
-import { msgSuccess } from '@/tools/message'
 import { useTable } from '@/tools/page/common'
 import {formatDate,newTimeRangeHandler}from '@/tools/page/time'
 import {roleColumns,roleRuleColumns} from '@/tools/page/columns'
@@ -150,10 +149,8 @@ const handleModalOk = async () => {
     }
     if (formData.id) {
       await roleEdit(params)
-      msgSuccess('编辑成功')
     }else{
       await roleInsert(params)
-      msgSuccess('新增成功')
     }
       modalVisible.value = false
       fetchData(pagination,searchForm)

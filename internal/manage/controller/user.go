@@ -30,7 +30,7 @@ func (u *UserHandlerController) GetList() gin.HandlerFunc {
 		}
 		skip, limit, err := pkg.GetPage(userReq.CurrPage, userReq.PageSize)
 		if err != nil {
-			u.SendCustomResponseByBacked(c, "分页失败", "Paging failed", err)
+			u.SendServerErrorResponse(c, 5131, err)
 			return
 		}
 		//DB操作
@@ -149,10 +149,10 @@ func (u *UserHandlerController) Update() gin.HandlerFunc {
 			Password:  userReq.User.Password,
 			AvatarUrl: userReq.User.AvatarUrl,
 		}
-		if err = userDB.SetPassword(userDB.Password); err != nil {
-			u.SendServerErrorResponse(c, 5100, err)
-			return
-		}
+		//if err = userDB.SetPassword(userDB.Password); err != nil {
+		//	u.SendServerErrorResponse(c, 5100, err)
+		//	return
+		//}
 		//DB操作
 		if err := userDB.Update(userReq.AddRoles, userReq.DeletedRoles); err != nil {
 			u.SendServerErrorResponse(c, 5120, err)
@@ -173,19 +173,18 @@ func (u *UserHandlerController) Login() gin.HandlerFunc {
 		var tempUser = &models.User{Account: reqUser.Account, Password: reqUser.Password}
 		user, err := tempUser.GetOne()
 		if err != nil {
-			u.SendServerErrorResponse(c, 5101, err)
+			u.SendServerErrorResponse(c, 5102, err)
 			return
 		}
 		//校验密码
 		bol := user.CheckPassword(tempUser.Password)
 		if !bol {
-			u.SendCustomResponseByBacked(c, "密码错误", "Password error", nil)
+			u.SendServerErrorResponse(c, 5201, nil)
 			return
 		}
 		accessToken, refreshToken, err := jwt.GenerateToken(user.Name)
 		if err != nil {
-
-			u.SendCustomResponseByBacked(c, "生成token失败", "Failed to generate token", err)
+			u.SendServerErrorResponse(c, 5202, err)
 			return
 		}
 		u.SendSuccessResponse(c, types.UserLoginResp{

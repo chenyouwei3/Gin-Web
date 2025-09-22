@@ -11,13 +11,18 @@ var ErrorCodeMap = map[int]ResponseMsg{
 	4090: {ZhCn: "数据重复", EnUs: "Data duplication"},
 	4290: {ZhCn: "当前服务器过载,请稍后重试", EnUs: "The current server is overloaded, please try again later"},
 	//5000自定义错误
-	//数据库错误
+	//100-199数据库错误
 	5100: {"添加失败", "Add failed"},
 	5101: {ZhCn: "数据已存在", EnUs: "The data already exists"},
+	5102: {ZhCn: "数据不存在", EnUs: "The data is not already exists"},
 
 	5110: {"删除失败", "Delete failed"},
 
 	5120: {"更新失败", "Modification failed"},
 
 	5130: {"查询失败", "Query failed"},
+	5131: {"分页失败", "Paging failed"},
+	//200-299登陆权限相关
+	5201: {"账号或密码错误", "Account or Password error"},
+	5202: {"权限信息生成失败", "Permission information generation failed"},
 }

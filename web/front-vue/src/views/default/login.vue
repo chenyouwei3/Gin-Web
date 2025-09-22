@@ -225,11 +225,12 @@ import storage from 'store'
 import { login, register } from '@/tools/api'; 
 import {msgError, msgSuccess } from '@/tools/message';
 import { UserOutlined, LockOutlined, WechatOutlined, QqOutlined,MobileOutlined,SafetyOutlined,MailOutlined,TwitterOutlined,InstagramOutlined,GoogleOutlined,FacebookOutlined,GithubOutlined} from '@ant-design/icons-vue';   
-import { ref } from 'vue';  
+import { ref,getCurrentInstance } from 'vue';  
 import { useRouter } from 'vue-router'
 import {loginRules} from '@/tools/page/columns'
 /*--------------------------------- 全局变量 ---------------------------------*/
 const activeTab = ref('password');
+const { proxy } = getCurrentInstance() // 获取 Vue 实例（this）
 const router = useRouter()
 const rules = loginRules
 const smsRules = {
@@ -255,7 +256,6 @@ const smsRules = {
 const smsFormModel = ref(null);// 表单引用
 const smsInfo = ref({email: "",password: "",confirmPassword: "",name: ""})//注册信息
 const loadingLogin = ref(false);// 登录请求加载状态
-
 const handleRegister = async () => {
   if (!smsInfo.value.email || !smsInfo.value.password || !smsInfo.value.confirmPassword || !smsInfo.value.name ) {
     msgError('请填写完整信息')
@@ -275,7 +275,7 @@ const handleRegister = async () => {
       password: smsInfo.value.password,
       avatarUrl:""
     },
-    addRoles: [1],        // 要添加的角色 ID 数组
+    addRoles: proxy.$default_sign_up_roles,        // 要添加的角色 ID 数组
     deletedRoles: []        // 要删除的角色 ID 数组
     };  
     const res = await register(userRequest);
@@ -304,10 +304,9 @@ const handleLogin = async () => {
     loadingLogin.value = true;    
     const ret = await login(loginInfo.value);
     if (ret?.code === 2000){
-      console.log('登录成功，保存用户信息');
-      storage.set("access_token", ret.data.access_token, 2 * 60 * 60 * 1000);
-      storage.set("refresh_token", ret.data.refresh_token, 12 * 60 * 60 * 1000);
-      storage.set("user_info", {name: ret.data.user.name, account: ret.data.user.account}, 8 * 60 * 60 * 1000);
+      storage.set("access_token", ret.data.access_token, 2 * 60 * 60 * 1000);//2 hour
+      storage.set("refresh_token", ret.data.refresh_token, 1 * 60 * 60 * 1000);
+      storage.set("user_info", {name: ret.data.user.name, account: ret.data.user.account}, 1 * 60 * 60 * 1000);
       setTimeout(() => {
         loadingLogin.value = false;
         router.push('/role-center');

@@ -4,9 +4,10 @@ import "time"
 
 type Config struct {
 	APP struct {
-		Name string
-		Port string
-		Mode string //主程序运行模式
+		Name   string
+		Port   string
+		Mode   string //主程序运行模式
+		RunLog string
 	}
 	Mysql MysqlConfig
 }

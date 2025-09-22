@@ -24,7 +24,7 @@ func InitRunLog(conf conf.Config) error {
 
 	// 日志文件路径（每天一个）
 	today := time.Now().Format("2006-01-02")
-	logFilePath := "../logs/" + today + ".log"
+	logFilePath := conf.APP.RunLog + "/" + today + ".log"
 
 	// 确保 logs 目录存在
 	if err := os.MkdirAll("../logs", os.ModePerm); err != nil {

@@ -25,7 +25,7 @@ func (l *LogHandlerController) GetListByOperation() gin.HandlerFunc {
 		}
 		skip, limit, err := pkg.GetPage(logReq.CurrPage, logReq.PageSize)
 		if err != nil {
-			l.SendCustomResponseByBacked(c, "分页失败", "Paging failed", err)
+			l.SendServerErrorResponse(c, 5131, err)
 			return
 		}
 		//DB操作

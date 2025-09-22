@@ -21,7 +21,7 @@ type RoleGetListResp struct {
 // 新增角色
 type RoleInsertReq struct {
 	Name string `json:"name" binding:"required,min=2,max=20" `
-	Desc string `json:"desc"  `
+	Desc string `json:"desc" binding:"required,max=100"`
 }
 
 // 删除角色

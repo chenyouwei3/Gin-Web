@@ -4,8 +4,9 @@ const routes = [
 	//默认目录
 	{
 		path:'/',
-		redirect:'/role-center'
+		redirect:'/login'
 	},
+	/*---------------------默认功能页面---------------------*/
 	{
 		name:"404",
 		path:"/404",
@@ -14,7 +15,6 @@ const routes = [
 		},
 		component: () => import("@/views/default/404.vue")
 	},
-	/*---------------------首页---------------------*/
 	{
 		name:"login",
 		path:"/login",
@@ -23,8 +23,15 @@ const routes = [
 		},
 		component: () => import("@/views/default/login.vue")
 	},
+	{
+		name:"personal",
+		path:"/personal",
+		meta:{
+			title:"个人信息"
+		},
+		component: () => import("@/views/default/personal.vue")
+	},
 	/*---------------------功能页面---------------------*/
-
 	//日志中心
 	{
 		name:"log-operation",
